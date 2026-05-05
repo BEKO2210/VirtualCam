@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+  /* Studio Dark Palette — calibrated for fotografie */
+  --color-base: oklch(0.145 0.01 270);          /* near-black graphite */
+  --color-surface: oklch(0.19 0.012 270);       /* card */
+  --color-surface-2: oklch(0.235 0.012 270);    /* elevated */
+  --color-border: oklch(0.30 0.012 270 / 0.6);
+  --color-border-strong: oklch(0.42 0.014 270 / 0.8);
+  --color-muted: oklch(0.62 0.014 270);
+  --color-foreground: oklch(0.97 0.005 270);
+  --color-foreground-dim: oklch(0.78 0.008 270);
+
+  /* Brand accents — amber/orange like a film developer's safelight */
+  --color-primary: oklch(0.78 0.16 64);         /* amber */
+  --color-primary-foreground: oklch(0.18 0.02 60);
+  --color-accent: oklch(0.72 0.18 28);          /* hot orange */
+  --color-warn: oklch(0.83 0.18 90);            /* yellow for adapter alerts */
+  --color-danger: oklch(0.65 0.22 25);
+  --color-success: oklch(0.74 0.16 155);
+
+  /* Mount color codes (data-driven rim lighting) */
+  --color-mount-e: oklch(0.74 0.18 50);          /* Sony E – orange */
+  --color-mount-rf: oklch(0.65 0.22 25);         /* Canon RF – red */
+  --color-mount-z: oklch(0.83 0.18 90);          /* Nikon Z – yellow */
+  --color-mount-x: oklch(0.72 0.16 155);         /* Fuji X – green */
+  --color-mount-l: oklch(0.74 0.10 250);         /* L-mount – blue-grey */
+  --color-mount-pl: oklch(0.85 0.005 270);       /* PL – silver */
+  --color-mount-mft: oklch(0.65 0.16 300);       /* MFT – violet */
+
+  --radius: 1rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-glass: 0 1px 0 0 oklch(1 0 0 / 0.06) inset, 0 0 0 1px oklch(1 0 0 / 0.04), 0 30px 60px -20px oklch(0 0 0 / 0.6);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 8% -10%, oklch(0.30 0.04 60 / 0.18), transparent 60%),
+      radial-gradient(900px 500px at 100% 110%, oklch(0.30 0.05 30 / 0.14), transparent 60%),
+      var(--color-base);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+    color: var(--color-foreground);
+  }
+
+  /* Scrollbar — slim, dark */
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--color-foreground) 12%, transparent);
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklch, var(--color-foreground) 22%, transparent);
+  }
+}
+
+@layer components {
+  .glass {
+    background:
+      linear-gradient(180deg, oklch(1 0 0 / 0.04), oklch(1 0 0 / 0.01)),
+      color-mix(in oklch, var(--color-surface) 70%, transparent);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-strong {
+    background:
+      linear-gradient(180deg, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0.015)),
+      color-mix(in oklch, var(--color-surface-2) 80%, transparent);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .ring-focus {
+    outline: none;
+  }
+  .ring-focus:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-base), 0 0 0 4px var(--color-primary);
+  }
+
+  .grid-paper {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  .mask-fade-x {
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+}
+
+/* Sheet / Dialog animations driven by Radix data-state */
+@keyframes overlay-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes overlay-out { from { opacity: 1 } to { opacity: 0 } }
+@keyframes slide-from-right { from { transform: translateX(100%) } to { transform: translateX(0) } }
+@keyframes slide-to-right { from { transform: translateX(0) } to { transform: translateX(100%) } }
+@keyframes slide-from-left { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+@keyframes slide-to-left { from { transform: translateX(0) } to { transform: translateX(-100%) } }
+@keyframes slide-from-bottom { from { transform: translateY(100%) } to { transform: translateY(0) } }
+@keyframes slide-to-bottom { from { transform: translateY(0) } to { transform: translateY(100%) } }
+@keyframes slide-from-top { from { transform: translateY(-100%) } to { transform: translateY(0) } }
+@keyframes slide-to-top { from { transform: translateY(0) } to { transform: translateY(-100%) } }
+
+[data-radix-dialog-overlay][data-state="open"] { animation: overlay-in 220ms ease forwards; }
+[data-radix-dialog-overlay][data-state="closed"] { animation: overlay-out 180ms ease forwards; }
+
+[data-side="right"][data-state="open"] { animation: slide-from-right 320ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="right"][data-state="closed"] { animation: slide-to-right 240ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="left"][data-state="open"] { animation: slide-from-left 320ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="left"][data-state="closed"] { animation: slide-to-left 240ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="bottom"][data-state="open"] { animation: slide-from-bottom 360ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="bottom"][data-state="closed"] { animation: slide-to-bottom 240ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="top"][data-state="open"] { animation: slide-from-top 320ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+[data-side="top"][data-state="closed"] { animation: slide-to-top 240ms cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.pulse-glow { animation: pulse-glow 1.6s ease-in-out infinite; }
+
+/* Motion-safe defaults */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

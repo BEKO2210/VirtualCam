@@ -1,0 +1,127 @@
+{
+  "sony": {
+    "key": "sony",
+    "brand": "Sony",
+    "format": "Full-Frame",
+    "mount": "E-Mount",
+    "models": [
+      { "id": "sony-a1-ii", "name": "Sony α1 II", "sensor": "50.1MP Stacked CMOS", "type": "mirrorless", "iso_range": [80, 32000], "video": "8K30 / 4K120", "year": 2024, "tier": "flagship" },
+      { "id": "sony-a7r-v", "name": "Sony α7R V", "sensor": "61MP BSI CMOS", "type": "mirrorless", "iso_range": [100, 32000], "video": "8K24 / 4K60", "year": 2022, "tier": "pro" },
+      { "id": "sony-a7s-iii", "name": "Sony α7S III", "sensor": "12.1MP BSI CMOS", "type": "mirrorless", "iso_range": [80, 102400], "video": "4K120", "year": 2020, "tier": "pro" },
+      { "id": "sony-a9-iii", "name": "Sony α9 III", "sensor": "24.6MP Global Shutter", "type": "mirrorless", "iso_range": [250, 25600], "video": "4K120", "year": 2024, "tier": "flagship" },
+      { "id": "sony-fx3", "name": "Sony FX3", "sensor": "10.2MP BSI CMOS", "type": "cinema", "iso_range": [80, 102400], "video": "4K120 RAW", "year": 2021, "tier": "cine" },
+      { "id": "sony-fx6", "name": "Sony FX6", "sensor": "10.2MP Full-Frame", "type": "cinema", "iso_range": [320, 12800], "video": "4K120", "year": 2020, "tier": "cine" }
+    ]
+  },
+  "canon": {
+    "key": "canon",
+    "brand": "Canon",
+    "format": "Full-Frame",
+    "mount": "RF",
+    "models": [
+      { "id": "canon-r5-ii", "name": "Canon EOS R5 Mark II", "sensor": "45MP Stacked CMOS", "type": "mirrorless", "iso_range": [100, 51200], "video": "8K60 RAW", "year": 2024, "tier": "flagship" },
+      { "id": "canon-r3", "name": "Canon EOS R3", "sensor": "24.1MP Stacked CMOS", "type": "mirrorless", "iso_range": [100, 102400], "video": "6K60 RAW", "year": 2021, "tier": "flagship" },
+      { "id": "canon-r1", "name": "Canon EOS R1", "sensor": "24MP Stacked CMOS", "type": "mirrorless", "iso_range": [100, 102400], "video": "6K60 RAW", "year": 2024, "tier": "flagship" },
+      { "id": "canon-r6-ii", "name": "Canon EOS R6 Mark II", "sensor": "24.2MP CMOS", "type": "mirrorless", "iso_range": [100, 102400], "video": "4K60", "year": 2022, "tier": "pro" },
+      { "id": "canon-1dx-iii", "name": "Canon EOS-1D X Mark III", "sensor": "20.1MP CMOS", "type": "dslr", "iso_range": [100, 102400], "video": "5.5K RAW", "year": 2020, "tier": "flagship" }
+    ]
+  },
+  "nikon": {
+    "key": "nikon",
+    "brand": "Nikon",
+    "format": "Full-Frame",
+    "mount": "Z",
+    "models": [
+      { "id": "nikon-z9", "name": "Nikon Z9", "sensor": "45.7MP Stacked CMOS", "type": "mirrorless", "iso_range": [64, 25600], "video": "8K60 RAW", "year": 2021, "tier": "flagship" },
+      { "id": "nikon-z8", "name": "Nikon Z8", "sensor": "45.7MP Stacked CMOS", "type": "mirrorless", "iso_range": [64, 25600], "video": "8K60 RAW", "year": 2023, "tier": "flagship" },
+      { "id": "nikon-zf", "name": "Nikon Zf", "sensor": "24.5MP BSI CMOS", "type": "mirrorless", "iso_range": [100, 64000], "video": "4K30", "year": 2023, "tier": "enthusiast" },
+      { "id": "nikon-z7-ii", "name": "Nikon Z7 II", "sensor": "45.7MP BSI CMOS", "type": "mirrorless", "iso_range": [64, 25600], "video": "4K60", "year": 2020, "tier": "pro" },
+      { "id": "nikon-d850", "name": "Nikon D850", "sensor": "45.7MP BSI CMOS", "type": "dslr", "iso_range": [64, 25600], "video": "4K30", "year": 2017, "tier": "pro" }
+    ]
+  },
+  "fujifilm": {
+    "key": "fujifilm",
+    "brand": "Fujifilm",
+    "format": "APS-C",
+    "mount": "X",
+    "models": [
+      { "id": "fuji-x-h2s", "name": "Fujifilm X-H2S", "sensor": "26.1MP Stacked X-Trans 5", "type": "mirrorless", "iso_range": [160, 12800], "video": "6.2K30 / 4K120", "year": 2022, "tier": "flagship" },
+      { "id": "fuji-x-t5", "name": "Fujifilm X-T5", "sensor": "40MP X-Trans 5 HR", "type": "mirrorless", "iso_range": [125, 12800], "video": "6.2K30", "year": 2022, "tier": "pro" },
+      { "id": "fuji-x100vi", "name": "Fujifilm X100VI", "sensor": "40MP X-Trans 5 HR", "type": "rangefinder", "iso_range": [125, 12800], "video": "6.2K30", "year": 2024, "tier": "enthusiast" },
+      { "id": "fuji-gfx100-ii", "name": "Fujifilm GFX100 II", "sensor": "102MP Medium Format BSI", "type": "medium-format", "iso_range": [80, 12800], "video": "8K30", "year": 2023, "tier": "flagship" },
+      { "id": "fuji-gfx50s-ii", "name": "Fujifilm GFX 50S II", "sensor": "51.4MP Medium Format", "type": "medium-format", "iso_range": [100, 12800], "video": "1080p30", "year": 2021, "tier": "pro" }
+    ]
+  },
+  "panasonic": {
+    "key": "panasonic",
+    "brand": "Panasonic",
+    "format": "Full-Frame",
+    "mount": "L",
+    "models": [
+      { "id": "lumix-s5-ii-x", "name": "Lumix S5 IIX", "sensor": "24.2MP CMOS", "type": "mirrorless", "iso_range": [100, 51200], "video": "6K30 RAW", "year": 2023, "tier": "pro" },
+      { "id": "lumix-s1r-ii", "name": "Lumix S1R II", "sensor": "44.3MP BSI CMOS", "type": "mirrorless", "iso_range": [80, 51200], "video": "8K30", "year": 2024, "tier": "flagship" },
+      { "id": "lumix-gh6", "name": "Lumix GH6", "sensor": "25.2MP MFT", "type": "mirrorless", "iso_range": [100, 25600], "video": "5.7K60 ProRes", "year": 2022, "tier": "pro" }
+    ]
+  },
+  "leica": {
+    "key": "leica",
+    "brand": "Leica",
+    "format": "Full-Frame",
+    "mount": "L",
+    "models": [
+      { "id": "leica-m11", "name": "Leica M11", "sensor": "60.3MP BSI CMOS", "type": "rangefinder", "iso_range": [64, 50000], "video": "—", "year": 2022, "tier": "flagship" },
+      { "id": "leica-q3", "name": "Leica Q3", "sensor": "60.3MP BSI CMOS", "type": "rangefinder", "iso_range": [50, 100000], "video": "8K30", "year": 2023, "tier": "pro" },
+      { "id": "leica-sl3", "name": "Leica SL3", "sensor": "60MP BSI CMOS", "type": "mirrorless", "iso_range": [50, 100000], "video": "8K30", "year": 2024, "tier": "flagship" }
+    ]
+  },
+  "hasselblad": {
+    "key": "hasselblad",
+    "brand": "Hasselblad",
+    "format": "Medium Format",
+    "mount": "XCD",
+    "models": [
+      { "id": "hassy-x2d-100c", "name": "Hasselblad X2D 100C", "sensor": "100MP Medium Format BSI", "type": "medium-format", "iso_range": [64, 25600], "video": "—", "year": 2022, "tier": "flagship" },
+      { "id": "hassy-907x-100c", "name": "Hasselblad 907X / CFV 100C", "sensor": "100MP Medium Format BSI", "type": "medium-format", "iso_range": [64, 25600], "video": "—", "year": 2024, "tier": "flagship" }
+    ]
+  },
+  "phase_one": {
+    "key": "phase_one",
+    "brand": "Phase One",
+    "format": "Medium Format",
+    "mount": "XCD",
+    "models": [
+      { "id": "phase-iq4-150", "name": "Phase One IQ4 150MP", "sensor": "151MP Medium Format", "type": "medium-format", "iso_range": [50, 25600], "video": "—", "year": 2018, "tier": "flagship" },
+      { "id": "phase-xt-iq4", "name": "Phase One XT / IQ4 150MP Achromatic", "sensor": "150MP Achromatic", "type": "medium-format", "iso_range": [200, 51200], "video": "—", "year": 2019, "tier": "flagship" }
+    ]
+  },
+  "blackmagic": {
+    "key": "blackmagic",
+    "brand": "Blackmagic Design",
+    "format": "Super 35",
+    "mount": "L / EF",
+    "models": [
+      { "id": "bmpcc-6k-g2", "name": "BMPCC 6K G2", "sensor": "Super 35 HDR", "type": "cinema", "iso_range": [100, 25600], "video": "6K50 BRAW", "year": 2022, "tier": "cine" },
+      { "id": "bm-cinema-6k-ff", "name": "Blackmagic Cinema 6K Full-Frame", "sensor": "Full-Frame Cine", "type": "cinema", "iso_range": [100, 25600], "video": "6K60 BRAW", "year": 2024, "tier": "cine" }
+    ]
+  },
+  "red": {
+    "key": "red",
+    "brand": "RED Digital Cinema",
+    "format": "Super 35",
+    "mount": "RF / EF / PL",
+    "models": [
+      { "id": "red-v-raptor-xl", "name": "RED V-Raptor XL [X]", "sensor": "8K VV Global Shutter", "type": "cinema", "iso_range": [800, 25600], "video": "8K120 R3D", "year": 2024, "tier": "cine" },
+      { "id": "red-komodo-x", "name": "RED Komodo-X", "sensor": "6K Super 35 Global Shutter", "type": "cinema", "iso_range": [800, 12800], "video": "6K80 R3D", "year": 2023, "tier": "cine" }
+    ]
+  },
+  "arri": {
+    "key": "arri",
+    "brand": "ARRI",
+    "format": "Super 35",
+    "mount": "PL",
+    "models": [
+      { "id": "arri-alexa-35", "name": "ARRI ALEXA 35", "sensor": "Super 35 ALEV 4", "type": "cinema", "iso_range": [160, 6400], "video": "4.6K120 ARRIRAW", "year": 2022, "tier": "cine" },
+      { "id": "arri-alexa-mini-lf", "name": "ARRI ALEXA Mini LF", "sensor": "Large Format ALEV III", "type": "cinema", "iso_range": [160, 3200], "video": "4.5K LF", "year": 2019, "tier": "cine" }
+    ]
+  }
+}
