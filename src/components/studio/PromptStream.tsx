@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, Copy, Download, Sliders } from 'lucide-react';
-import { usePrompt, useResolvedSelection } from '@/lib/store';
+import { Check, Copy, Download, ScanFace, Sliders, Sparkles } from 'lucide-react';
+import { usePrompt, useResolvedSelection, useStudio } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,8 @@ interface Props {
 export function PromptStream({ onOpenSettings }: Props) {
   const { text, tokens } = usePrompt();
   const { brand, camera, lens, genre, compat } = useResolvedSelection();
+  const mode = useStudio((s) => s.mode);
+  const setMode = useStudio((s) => s.setMode);
   const [copied, setCopied] = useState(false);
   const lastTokensRef = useRef<string>('');
 
@@ -50,6 +52,39 @@ export function PromptStream({ onOpenSettings }: Props) {
 
   return (
     <div className="glass-strong rounded-[var(--radius-lg)] overflow-hidden">
+      {/* Mode toggle — segmented control above the header so the active
+          template style is always visible without opening Settings. */}
+      <div className="px-3 pt-3">
+        <div className="grid grid-cols-2 rounded-full p-1 bg-white/[0.04] border border-[var(--color-border)] gap-1">
+          {(['reconstruction', 'generation'] as const).map((m) => {
+            const active = mode === m;
+            const Icon = m === 'reconstruction' ? ScanFace : Sparkles;
+            return (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={cn(
+                  'relative flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors',
+                  active ? 'text-[var(--color-primary-foreground)]' : 'text-foreground/60 hover:text-foreground',
+                )}
+              >
+                {active && (
+                  <motion.div
+                    layoutId="mode-pill"
+                    className="absolute inset-0 rounded-full bg-[var(--color-primary)]"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <Icon className="size-3.5 relative" />
+                <span className="relative">
+                  {m === 'reconstruction' ? 'Restaurieren' : 'Generieren'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Header — two rows on mobile, one row from sm: up */}
       <div className="px-4 pt-3 pb-2 border-b border-[var(--color-border)] space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-2">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">

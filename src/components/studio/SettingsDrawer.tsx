@@ -2,9 +2,9 @@ import { Drawer } from 'vaul';
 import { RotateCcw, X } from 'lucide-react';
 import { useStudio } from '@/lib/store';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { ChipGroup } from '@/components/ui/chip-group';
+import { FIELD_GROUPS } from '@/lib/setting-presets';
 import type { SettingsKey } from '@/types';
 
 interface Props {
@@ -12,60 +12,35 @@ interface Props {
   onOpenChange: (v: boolean) => void;
 }
 
-interface FieldDef {
-  key: SettingsKey;
-  label: string;
-  unit?: string;
-  hint?: string;
-}
-
-const TECH_FIELDS: FieldDef[] = [
-  { key: 'aperture', label: 'Blende', hint: 'f/1.4 … f/22' },
-  { key: 'iso', label: 'ISO', hint: '50 … 102400' },
-  { key: 'shutterSpeed', label: 'Belichtung', hint: '1/4000s … 30s' },
-  { key: 'resolution', label: 'Auflösung', hint: '4K · 6K · 8K' },
-  { key: 'bitDepth', label: 'Bit-Tiefe', hint: '10-bit · 12-bit · 14-bit' },
-  { key: 'aspectRatio', label: 'Format', hint: '3:2 · 16:9 · 65:24' },
-  { key: 'focusMode', label: 'Fokus-Modus', hint: 'AF-S · AF-C · MF' },
-  { key: 'depthOfField', label: 'Tiefenschärfe', hint: 'razor-thin … hyperfocal' },
-];
-
-const LOOK_FIELDS: FieldDef[] = [
-  { key: 'colorProfile', label: 'Color Profile' },
-  { key: 'lightingStyle', label: 'Lichtstil' },
-  { key: 'highlightTemp', label: 'Highlight-Temperatur' },
-  { key: 'shadowTemp', label: 'Schatten-Temperatur' },
-  { key: 'colorTone', label: 'Farbton' },
-  { key: 'contrastCurve', label: 'Kontrastkurve' },
-  { key: 'saturation', label: 'Sättigung' },
-  { key: 'grainSetting', label: 'Korn / Grain' },
-];
-
-const SCENE_FIELDS: FieldDef[] = [
-  { key: 'lightingSetup', label: 'Light Setup' },
-  { key: 'bgType', label: 'Hintergrund' },
-  { key: 'bgBlur', label: 'BG Blur' },
-  { key: 'bokehShape', label: 'Bokeh' },
-  { key: 'skyTreatment', label: 'Himmel' },
-  { key: 'filterStyle', label: 'Filter' },
-  { key: 'perspectiveControl', label: 'Perspektive' },
-  { key: 'negativeInstructions', label: 'Negative Instructions' },
-];
-
+/**
+ * Studio Einstellungen — every field is a tap-only chip group (no
+ * free-text input). Drawer opens fully (95% of viewport) per @beko's
+ * request: "Wenn ich auf Einstellung drücke soll das komplett ausfahren".
+ */
 export function SettingsDrawer({ open, onOpenChange }: Props) {
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange} snapPoints={[0.5, 0.92]} fadeFromIndex={1}>
+    <Drawer.Root open={open} onOpenChange={onOpenChange} snapPoints={[0.95]} dismissible>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mt-24 h-full max-h-[92vh] outline-none">
+        <Drawer.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mt-12 h-full max-h-[95vh] outline-none">
           <div className="flex h-full flex-col rounded-t-[var(--radius-lg)] glass-strong">
             <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-white/15 shrink-0" />
             <Header />
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 space-y-5 pb-safe">
-              <FieldGroup title="Technische Einstellungen" fields={TECH_FIELDS} />
-              <FieldGroup title="Licht & Look" fields={LOOK_FIELDS} />
-              <FieldGroup title="Szene & Komposition" fields={SCENE_FIELDS} />
-              <div className="h-8" />
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 space-y-5 pb-[env(safe-area-inset-bottom,16px)]">
+              <ModeSwitch />
+              {FIELD_GROUPS.map((group) => (
+                <section key={group.title}>
+                  <div className="px-1 mb-2 text-[10.5px] font-mono uppercase tracking-[0.18em] text-foreground/45">
+                    {group.title}
+                  </div>
+                  <div className="space-y-3.5">
+                    {group.fields.map((f) => (
+                      <ChipGroupField key={f.key} fieldKey={f.key} label={f.label} hint={f.hint} options={f.options} variant={f.kind === 'stops' ? 'stops' : 'chips'} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+              <div className="h-12" />
             </div>
           </div>
         </Drawer.Content>
@@ -76,7 +51,7 @@ export function SettingsDrawer({ open, onOpenChange }: Props) {
 
 function Header() {
   const reset = useStudio((s) => s.resetSettings);
-  const dirty = useStudio((s) => Object.keys(s.settings).length);
+  const dirty = useStudio((s) => Object.values(s.settings).filter(Boolean).length);
   return (
     <div className="flex items-center gap-2 px-5 py-3 border-b border-[var(--color-border)] shrink-0">
       <Drawer.Title className="text-sm font-semibold tracking-tight">Studio Einstellungen</Drawer.Title>
@@ -97,50 +72,73 @@ function Header() {
   );
 }
 
-function FieldGroup({ title, fields }: { title: string; fields: FieldDef[] }) {
+function ModeSwitch() {
+  const mode = useStudio((s) => s.mode);
+  const setMode = useStudio((s) => s.setMode);
   return (
     <section>
-      <div className="px-1 mb-2 text-[10px] font-mono uppercase tracking-[0.18em] text-foreground/40">
-        {title}
+      <div className="px-1 mb-2 text-[10.5px] font-mono uppercase tracking-[0.18em] text-foreground/45">
+        Prompt-Modus
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {fields.map((f) => (
-          <Field key={f.key} field={f} />
-        ))}
+        {(['reconstruction', 'generation'] as const).map((m) => {
+          const active = mode === m;
+          return (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={
+                'relative rounded-[var(--radius-sm)] border p-3 text-left transition-colors ring-focus ' +
+                (active
+                  ? 'border-[color-mix(in_oklch,var(--color-primary)_55%,transparent)] bg-[color-mix(in_oklch,var(--color-primary)_18%,transparent)] shadow-[0_0_0_1px_color-mix(in_oklch,var(--color-primary)_30%,transparent),0_4px_14px_-6px_var(--color-primary)]'
+                  : 'border-[var(--color-border)] bg-white/[0.02] hover:border-[var(--color-border-strong)]')
+              }
+            >
+              <div className="text-[12.5px] font-semibold tracking-tight">
+                {m === 'reconstruction' ? 'Reconstruction' : 'Generation'}
+              </div>
+              <div className="text-[10.5px] text-foreground/60 mt-0.5 leading-snug">
+                {m === 'reconstruction'
+                  ? 'Bestehendes Foto restaurieren · Identität + Hintergrund bleiben'
+                  : 'Neues Bild generieren · Editorial-Style'}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function Field({ field }: { field: FieldDef }) {
-  const value = useStudio((s) => s.settings[field.key] ?? '');
-  const placeholder = useStudio((s) => {
-    if (!s.genreKey || !s.raw) return field.hint ?? '';
+interface ChipFieldProps {
+  fieldKey: SettingsKey;
+  label: string;
+  hint?: string;
+  options: readonly string[];
+  variant: 'chips' | 'stops';
+}
+
+function ChipGroupField({ fieldKey, label, hint, options, variant }: ChipFieldProps) {
+  const value = useStudio((s) => s.settings[fieldKey] ?? '');
+  // Read the genre's default so we can show it as the active fallback when
+  // the user hasn't picked anything yet.
+  const defaultValue = useStudio((s) => {
+    if (!s.genreKey || !s.raw) return '';
     const tpl = s.raw.templates[s.genreKey];
-    const k = field.key.replace(/[A-Z]/g, (c) => '_' + c.toLowerCase());
-    return tpl?.defaults?.[k] ?? field.hint ?? '';
+    const k = fieldKey.replace(/[A-Z]/g, (c) => '_' + c.toLowerCase());
+    return tpl?.defaults?.[k] ?? '';
   });
   const setSettings = useStudio((s) => s.setSettings);
-  const isDirty = !!value;
+  const effective = value || defaultValue;
+
   return (
-    <label
-      className={cn(
-        'block rounded-[var(--radius-sm)] border bg-white/[0.02] p-2.5 transition-colors',
-        isDirty
-          ? 'border-[color-mix(in_oklch,var(--color-primary)_45%,transparent)]'
-          : 'border-[var(--color-border)] hover:border-[var(--color-border-strong)]',
-      )}
-    >
-      <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-[10px] uppercase tracking-wider text-foreground/55 font-medium">{field.label}</span>
-        {isDirty && <span className="size-1.5 rounded-full bg-[var(--color-primary)]" />}
-      </div>
-      <Input
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => setSettings({ [field.key]: e.target.value })}
-        className="h-8 text-[12px] bg-transparent border-0 px-0 focus-visible:border-0 focus-visible:ring-0 font-mono"
-      />
-    </label>
+    <ChipGroup
+      label={label}
+      hint={hint}
+      options={options}
+      value={effective}
+      onChange={(next) => setSettings({ [fieldKey]: next })}
+      variant={variant}
+    />
   );
 }
