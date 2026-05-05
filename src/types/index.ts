@@ -22,6 +22,8 @@ export interface CameraModel {
   tier?: 'flagship' | 'pro' | 'enthusiast' | 'cine';
   /** Wikipedia article title used by the build-time image fetcher */
   wiki?: string;
+  /** Direct Wikimedia Commons File: title — overrides Wikipedia pageimage lookup */
+  wikiFile?: string;
 }
 
 export interface CameraImageCredit {
@@ -30,6 +32,8 @@ export interface CameraImageCredit {
   artist: string;
   license: string;
   sourceUrl: string;
+  /** True when the studio background was removed at build time (PNG with alpha). */
+  bgRemoved?: boolean;
 }
 
 export interface CameraImagesDoc {

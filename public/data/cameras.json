@@ -10,7 +10,7 @@
       { "id": "sony-a7s-iii", "name": "Sony α7S III", "sensor": "12.1MP BSI CMOS", "type": "mirrorless", "iso_range": [80, 102400], "video": "4K120", "year": 2020, "tier": "pro", "wiki": "Sony α7S III" },
       { "id": "sony-a9-iii", "name": "Sony α9 III", "sensor": "24.6MP Global Shutter", "type": "mirrorless", "iso_range": [250, 25600], "video": "4K120", "year": 2024, "tier": "flagship", "wiki": "Sony α9 III" },
       { "id": "sony-fx3", "name": "Sony FX3", "sensor": "10.2MP BSI CMOS", "type": "cinema", "iso_range": [80, 102400], "video": "4K120 RAW", "year": 2021, "tier": "cine", "wiki": "Sony FX3" },
-      { "id": "sony-fx6", "name": "Sony FX6", "sensor": "10.2MP Full-Frame", "type": "cinema", "iso_range": [320, 12800], "video": "4K120", "year": 2020, "tier": "cine", "wiki": "Sony FX6" }
+      { "id": "sony-fx6", "name": "Sony FX6", "sensor": "10.2MP Full-Frame", "type": "cinema", "iso_range": [320, 12800], "video": "4K120", "year": 2020, "tier": "cine", "wiki": "Sony FX6", "wikiFile": "Sony Cinema line FX6.jpg" }
     ]
   },
   "canon": {

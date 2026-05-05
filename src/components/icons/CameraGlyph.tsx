@@ -31,13 +31,7 @@ export function CameraGlyph({ camera, format, accent = 'var(--color-primary)', c
 
   if (camera && imgUrl && !imgFailed && !forceProcedural) {
     return (
-      <div
-        className={cn('relative w-full h-full', className)}
-        style={{
-          background:
-            'radial-gradient(70% 60% at 50% 60%, color-mix(in oklch, white 6%, transparent), transparent 70%)',
-        }}
-      >
+      <div className={cn('relative w-full h-full', className)}>
         <img
           src={imgUrl}
           alt={camera.name}
@@ -45,7 +39,10 @@ export function CameraGlyph({ camera, format, accent = 'var(--color-primary)', c
           decoding="async"
           onError={() => setImgFailed(true)}
           className="absolute inset-0 w-full h-full object-contain"
-          style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}
+          style={{
+            filter:
+              'drop-shadow(0 6px 12px rgba(0,0,0,0.6)) drop-shadow(0 1px 2px rgba(0,0,0,0.4))',
+          }}
         />
       </div>
     );
