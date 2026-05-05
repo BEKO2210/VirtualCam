@@ -25,9 +25,11 @@
  * (artist + license shortname) in camera-images.json. The studio shows
  * a "Bildnachweise" sheet listing every credit.
  */
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -142,6 +144,65 @@ async function downloadTo(url, dest) {
   return buf.length;
 }
 
+/**
+ * Try to remove the white/near-white studio background from a downloaded
+ * camera photo using ImageMagick. Most product shots on Wikimedia have
+ * white or near-white backgrounds; we replace those with transparency
+ * and trim the canvas to the subject.
+ *
+ * Returns { processed: boolean, ext: 'png' | original }. If ImageMagick
+ * fails (not installed, weird format, etc.), we keep the original file.
+ */
+function processBackground(srcPath, destPngPath) {
+  // Pre-flight: pick the magick binary that's available on the runner.
+  // GitHub Actions ubuntu-latest ships with ImageMagick 6 ("convert").
+  const candidates = ['magick', 'convert'];
+  let bin = null;
+  for (const c of candidates) {
+    try {
+      execFileSync(c, ['-version'], { stdio: 'ignore' });
+      bin = c;
+      break;
+    } catch {
+      /* try next */
+    }
+  }
+  if (!bin) return { processed: false, ext: null };
+
+  try {
+    // Strategy:
+    // 1. -fuzz 14% -fill none -draw "alpha 1,1 floodfill" — flood-fill
+    //    transparent from the corners. More accurate than "-transparent
+    //    white" because it only kills the *connected* outer region.
+    // 2. -trim — crop to the non-transparent bounding box.
+    // 3. +repage — reset the canvas size after trim.
+    // We run two flood-fills (top-left and top-right) so it survives
+    // images with off-center subjects.
+    const args = [
+      srcPath,
+      '-bordercolor', 'none',
+      '-fuzz', '14%',
+      '-fill', 'none',
+      '-draw', 'alpha 0,0 floodfill',
+      '-draw', 'alpha 1,1 floodfill',
+      '-draw', 'alpha 99%,1% floodfill',
+      '-draw', 'alpha 1%,99% floodfill',
+      '-draw', 'alpha 99%,99% floodfill',
+      '-trim',
+      '+repage',
+      destPngPath,
+    ];
+    if (bin === 'magick') {
+      execFileSync('magick', args, { stdio: 'pipe' });
+    } else {
+      execFileSync('convert', args, { stdio: 'pipe' });
+    }
+    return { processed: true, ext: 'png' };
+  } catch (e) {
+    return { processed: false, ext: null, error: e?.message };
+  }
+}
+
 const credits = {};
 let ok = 0;
 let skipped = 0;
@@ -160,18 +221,40 @@ for (const cam of allCameras) {
       await sleep(800);
       continue;
     }
-    const ext = (info.filename.match(/\.(jpe?g|png|webp)$/i)?.[1] ?? 'jpg').toLowerCase();
-    const file = `${cam.id}.${ext === 'jpeg' ? 'jpg' : ext}`;
-    const dest = join(imagesDir, file);
-    const size = await downloadTo(info.thumb, dest);
+    const origExt = (info.filename.match(/\.(jpe?g|png|webp)$/i)?.[1] ?? 'jpg').toLowerCase();
+    const tmpFile = join(tmpdir(), `cpp-${cam.id}.${origExt === 'jpeg' ? 'jpg' : origExt}`);
+    const origSize = await downloadTo(info.thumb, tmpFile);
+
+    // Try background removal → PNG. Fall back to keeping the original.
+    const pngDest = join(imagesDir, `${cam.id}.png`);
+    const result = processBackground(tmpFile, pngDest);
+    let file;
+    let finalSize;
+    if (result.processed) {
+      file = `${cam.id}.png`;
+      finalSize = readFileSync(pngDest).length;
+    } else {
+      // Move original into place
+      const fallbackExt = origExt === 'jpeg' ? 'jpg' : origExt;
+      file = `${cam.id}.${fallbackExt}`;
+      writeFileSync(join(imagesDir, file), readFileSync(tmpFile));
+      finalSize = origSize;
+    }
+    try { unlinkSync(tmpFile); } catch { /* ignore */ }
+
     credits[cam.id] = {
       file,
       filename: info.filename,
       artist: info.artist,
       license: info.license,
       sourceUrl: info.sourceUrl,
+      bgRemoved: result.processed,
     };
-    console.log(`✓ ${cam.id}: ${info.filename} (${(size / 1024).toFixed(0)} kB, ${info.license})`);
+    console.log(
+      `✓ ${cam.id}: ${info.filename} (${(finalSize / 1024).toFixed(0)} kB, ${info.license}${
+        result.processed ? ', bg removed' : ', bg kept'
+      })`,
+    );
     ok++;
   } catch (e) {
     console.log(`✗ ${cam.id} (${cam.wiki ?? cam.wikiFile}): ${e.message}`);

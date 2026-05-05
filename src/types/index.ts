@@ -32,6 +32,8 @@ export interface CameraImageCredit {
   artist: string;
   license: string;
   sourceUrl: string;
+  /** True when the studio background was removed at build time (PNG with alpha). */
+  bgRemoved?: boolean;
 }
 
 export interface CameraImagesDoc {
