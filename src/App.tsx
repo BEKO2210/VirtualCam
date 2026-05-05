@@ -1,17 +1,13 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
 import { Aperture } from 'lucide-react';
 import type { CameraBrand, GenreTemplate, LensMount, PromptEntry, RawData } from '@/types';
 import { useStudio } from '@/lib/store';
 import { StudioHeader } from '@/components/studio/StudioHeader';
-import { QuickRail } from '@/components/studio/QuickRail';
-import { CameraLensRail } from '@/components/studio/CameraLensRail';
-import { CameraRig } from '@/components/rig/CameraRig';
+import { HeroStage } from '@/components/hero/HeroStage';
 import { PromptStream } from '@/components/studio/PromptStream';
 import { SettingsDrawer } from '@/components/studio/SettingsDrawer';
 import { PromptBrowser } from '@/components/studio/PromptBrowser';
 import { CommandPalette } from '@/components/studio/CommandPalette';
-import { useResolvedSelection } from '@/lib/store';
 
 export default function App() {
   const setRaw = useStudio((s) => s.setRaw);
@@ -61,17 +57,9 @@ export default function App() {
         onOpenCommand={() => setPaletteOpen(true)}
       />
 
-      <main className="px-3 sm:px-6 py-4 space-y-4 max-w-7xl mx-auto">
-        <RigSection />
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(360px,420px)] gap-4">
-          <div className="space-y-4">
-            <QuickRail />
-            <CameraLensRail />
-          </div>
-          <PromptStream onOpenSettings={() => setSettingsOpen(true)} />
-        </div>
-
+      <main className="px-3 sm:px-6 py-4 space-y-4 max-w-4xl mx-auto">
+        <HeroStage />
+        <PromptStream onOpenSettings={() => setSettingsOpen(true)} />
         <Footer />
       </main>
 
@@ -79,25 +67,6 @@ export default function App() {
       <PromptBrowser open={browserOpen} onOpenChange={setBrowserOpen} />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
     </div>
-  );
-}
-
-function RigSection() {
-  const { brand, camera, lens, lensMountKey, compat } = useResolvedSelection();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <CameraRig
-        brand={brand ? { brand: brand.brand, format: brand.format, mount: brand.mount } : null}
-        camera={camera}
-        lens={lens}
-        lensMountKey={lensMountKey}
-        compat={compat}
-      />
-    </motion.div>
   );
 }
 

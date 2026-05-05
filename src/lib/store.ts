@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
@@ -313,29 +314,46 @@ export const useSelection = () =>
     })),
   );
 
-export const useResolvedSelection = () =>
-  useStudio(
-    useShallow((s) => {
-      const brand: CameraBrand | null = s.raw && s.brandKey ? s.raw.cameras[s.brandKey] ?? null : null;
-      const camera: CameraModel | null = brand && s.cameraId ? findCamera(s.raw!, brand.key, s.cameraId) : null;
-      const lensRef = s.lensId && s.lensMountKey && s.raw ? findLensAcrossMounts(s.raw, s.lensId) : null;
-      const lens: Lens | null = lensRef?.lens ?? null;
-      const lensMountKey = lensRef?.mountKey ?? s.lensMountKey ?? null;
-      const genre: GenreTemplate | null = s.raw && s.genreKey ? s.raw.templates[s.genreKey] ?? null : null;
-      const compat = brand && lensMountKey ? checkMountCompat(brand.key, lensMountKey) : null;
-      return { brand, camera, lens, lensMountKey, genre, compat };
-    }),
-  );
+/**
+ * Resolved view of the current selection.
+ *
+ * IMPORTANT: this hook subscribes only to *primitive* store fields and
+ * derives the rich objects (brand, camera, lens, genre, compat) inside
+ * a downstream useMemo. The earlier version put the derivation inside a
+ * useShallow selector — but checkMountCompat() and findCamera() return
+ * fresh references every call, so useShallow saw "different" on every
+ * render and triggered React #185 (max update depth) the moment a brand
+ * was selected.
+ */
+export function useResolvedSelection() {
+  const raw = useStudio((s) => s.raw);
+  const brandKey = useStudio((s) => s.brandKey);
+  const cameraId = useStudio((s) => s.cameraId);
+  const lensId = useStudio((s) => s.lensId);
+  const lensMountKeyState = useStudio((s) => s.lensMountKey);
+  const genreKey = useStudio((s) => s.genreKey);
+
+  return useMemo(() => {
+    const brand: CameraBrand | null = raw && brandKey ? raw.cameras[brandKey] ?? null : null;
+    const camera: CameraModel | null = brand && cameraId ? findCamera(raw!, brand.key, cameraId) : null;
+    const lensRef = lensId && lensMountKeyState && raw ? findLensAcrossMounts(raw, lensId) : null;
+    const lens: Lens | null = lensRef?.lens ?? null;
+    const lensMountKey = lensRef?.mountKey ?? lensMountKeyState ?? null;
+    const genre: GenreTemplate | null = raw && genreKey ? raw.templates[genreKey] ?? null : null;
+    const compat = brand && lensMountKey ? checkMountCompat(brand.key, lensMountKey) : null;
+    return { brand, camera, lens, lensMountKey, genre, compat };
+  }, [raw, brandKey, cameraId, lensId, lensMountKeyState, genreKey]);
+}
 
 export const usePrompt = () =>
   useStudio(useShallow((s) => ({ text: s.promptText, tokens: s.promptTokens })));
 
-/** Compatibility-annotated lens list for the active brand */
+/** Compatibility-annotated lens list for the active brand. */
 export function useCompatibleLenses(): AnnotatedLens[] {
-  return useStudio(
-    useShallow((s) => {
-      if (!s.raw || !s.brandKey) return [];
-      return annotateLensesForBrand(s.brandKey, s.raw);
-    }),
-  );
+  const raw = useStudio((s) => s.raw);
+  const brandKey = useStudio((s) => s.brandKey);
+  return useMemo(() => {
+    if (!raw || !brandKey) return [];
+    return annotateLensesForBrand(brandKey, raw);
+  }, [raw, brandKey]);
 }
