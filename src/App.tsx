@@ -27,11 +27,12 @@ export default function App() {
     let cancelled = false;
     (async () => {
       try {
+        const base = import.meta.env.BASE_URL;
         const [cameras, lenses, templates, promptsDoc] = await Promise.all([
-          fetch('/data/cameras.json').then((r) => r.json()),
-          fetch('/data/lenses.json').then((r) => r.json()),
-          fetch('/data/templates.json').then((r) => r.json()),
-          fetch('/data/prompts.json').then((r) => r.json()),
+          fetch(`${base}data/cameras.json`).then((r) => r.json()),
+          fetch(`${base}data/lenses.json`).then((r) => r.json()),
+          fetch(`${base}data/templates.json`).then((r) => r.json()),
+          fetch(`${base}data/prompts.json`).then((r) => r.json()),
         ]);
         if (cancelled) return;
         const raw: RawData = {
