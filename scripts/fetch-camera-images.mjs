@@ -25,11 +25,11 @@
  * (artist + license shortname) in camera-images.json. The studio shows
  * a "Bildnachweise" sheet listing every credit.
  */
-import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
+import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -145,58 +145,95 @@ async function downloadTo(url, dest) {
 }
 
 /**
- * Try to remove the white/near-white studio background from a downloaded
- * camera photo using ImageMagick. Most product shots on Wikimedia have
- * white or near-white backgrounds; we replace those with transparency
- * and trim the canvas to the subject.
+ * Remove the white/near-white studio background from a downloaded
+ * camera photo using sharp + connected-region flood-fill.
  *
- * Returns { processed: boolean, ext: 'png' | original }. If ImageMagick
- * fails (not installed, weird format, etc.), we keep the original file.
+ * Why not ImageMagick: the workflow runner had policy.xml restrictions
+ * on the -draw operator, and even the simpler -transparent variant
+ * failed silently across both magick and convert binaries. Sharp is a
+ * Node-native libvips wrapper that ships its own binaries via npm —
+ * no system dependencies, no policy issues.
+ *
+ * Algorithm
+ * 1. Decode to raw RGBA (forcing alpha channel).
+ * 2. BFS flood-fill alpha=0 from all four corners. A pixel is
+ *    "background" if the colour-distance from pure white is below
+ *    a fuzz threshold AND it's reachable from a corner without
+ *    crossing the camera body. This preserves white internal
+ *    elements (labels, dial markings) — they're unreachable from
+ *    the corners because the dark camera body separates them.
+ * 3. Re-encode as PNG; sharp.trim() crops the alpha bounding box.
  */
-function processBackground(srcPath, destPngPath) {
-  // Pre-flight: pick the magick binary that's available on the runner.
-  // GitHub Actions ubuntu-latest ships with ImageMagick 6 ("convert").
-  const candidates = ['magick', 'convert'];
-  let bin = null;
-  for (const c of candidates) {
-    try {
-      execFileSync(c, ['-version'], { stdio: 'ignore' });
-      bin = c;
-      break;
-    } catch {
-      /* try next */
-    }
-  }
-  if (!bin) return { processed: false, ext: null };
-
-  // Strategy: replace pixels within 14% of pure white with transparency,
-  // then crop the canvas to the non-transparent bounding box.
-  //
-  // We tried the more sophisticated connected-flood-fill approach
-  // (-draw 'alpha X,Y floodfill') first but it failed silently on the
-  // ubuntu-latest IM6 build — likely a policy.xml restriction on the
-  // -draw operator. The blunt `-transparent white` version is more
-  // permissive and still produces clean cutouts because Wikimedia
-  // studio shots almost never have pure-white elements inside the
-  // camera body.
-  const args = [
-    srcPath,
-    '-alpha', 'set',
-    '-fuzz', '14%',
-    '-transparent', 'white',
-    '-trim',
-    '+repage',
-    destPngPath,
-  ];
-
+async function processBackground(srcPath, destPngPath) {
   try {
-    execFileSync(bin, args, { stdio: ['ignore', 'ignore', 'pipe'] });
-    return { processed: true, ext: 'png' };
+    const img = sharp(srcPath, { failOn: 'truncated' });
+    const meta = await img.metadata();
+    const { width, height } = meta;
+    if (!width || !height) return { processed: false, error: 'no metadata' };
+
+    const { data } = await img.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    // data is RGBA, length = w*h*4
+
+    const FUZZ = 38; // out of 255 — "white-ish" tolerance
+    const visited = new Uint8Array(width * height);
+
+    const isWhiteish = (i) =>
+      data[i] >= 255 - FUZZ && data[i + 1] >= 255 - FUZZ && data[i + 2] >= 255 - FUZZ;
+
+    // Use a stack-based flood fill (faster than queue for our case),
+    // 4-connected.
+    const stack = [];
+    const seedIfWhite = (x, y) => {
+      const idx = y * width + x;
+      if (visited[idx]) return;
+      const i = idx * 4;
+      if (isWhiteish(i)) stack.push(idx);
+    };
+    // Seed: every edge pixel that's white-ish.
+    for (let x = 0; x < width; x++) {
+      seedIfWhite(x, 0);
+      seedIfWhite(x, height - 1);
+    }
+    for (let y = 0; y < height; y++) {
+      seedIfWhite(0, y);
+      seedIfWhite(width - 1, y);
+    }
+
+    while (stack.length) {
+      const idx = stack.pop();
+      if (visited[idx]) continue;
+      visited[idx] = 1;
+      const i = idx * 4;
+      if (!isWhiteish(i)) continue;
+      data[i + 3] = 0; // alpha = 0
+      const x = idx % width;
+      const y = (idx - x) / width;
+      if (x > 0 && !visited[idx - 1]) stack.push(idx - 1);
+      if (x < width - 1 && !visited[idx + 1]) stack.push(idx + 1);
+      if (y > 0 && !visited[idx - width]) stack.push(idx - width);
+      if (y < height - 1 && !visited[idx + width]) stack.push(idx + width);
+    }
+
+    // Count how many pixels we knocked out as a sanity-check signal.
+    let knocked = 0;
+    for (let i = 3; i < data.length; i += 4) if (data[i] === 0) knocked++;
+    const ratio = knocked / (width * height);
+
+    // If we removed almost nothing, the image probably doesn't have a
+    // white background (outdoor shot etc). Keep the original.
+    if (ratio < 0.05) {
+      return { processed: false, reason: `not enough white (${(ratio * 100).toFixed(1)}%)` };
+    }
+
+    await sharp(data, { raw: { width, height, channels: 4 } })
+      .png({ compressionLevel: 9, palette: false })
+      .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 }, threshold: 0 })
+      .toFile(destPngPath);
+
+    return { processed: true, knockedRatio: ratio };
   } catch (e) {
-    const stderr = e?.stderr?.toString?.() ?? '';
-    console.log(`  ! ImageMagick (${bin}) failed: ${e?.message?.split('\n')[0] ?? ''}`);
-    if (stderr) console.log(`    ${stderr.split('\n').slice(0, 3).join(' | ')}`);
-    return { processed: false, ext: null, error: e?.message };
+    console.log(`  ! sharp failed: ${e?.message ?? e}`);
+    return { processed: false, error: e?.message };
   }
 }
 
@@ -224,7 +261,7 @@ for (const cam of allCameras) {
 
     // Try background removal → PNG. Fall back to keeping the original.
     const pngDest = join(imagesDir, `${cam.id}.png`);
-    const result = processBackground(tmpFile, pngDest);
+    const result = await processBackground(tmpFile, pngDest);
     let file;
     let finalSize;
     if (result.processed) {
@@ -247,10 +284,11 @@ for (const cam of allCameras) {
       sourceUrl: info.sourceUrl,
       bgRemoved: result.processed,
     };
+    const tag = result.processed
+      ? `bg removed ${(result.knockedRatio * 100).toFixed(0)}%`
+      : `bg kept (${result.reason ?? result.error ?? 'unknown'})`;
     console.log(
-      `✓ ${cam.id}: ${info.filename} (${(finalSize / 1024).toFixed(0)} kB, ${info.license}${
-        result.processed ? ', bg removed' : ', bg kept'
-      })`,
+      `✓ ${cam.id}: ${info.filename} (${(finalSize / 1024).toFixed(0)} kB, ${info.license}, ${tag})`,
     );
     ok++;
   } catch (e) {
