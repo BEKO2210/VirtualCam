@@ -13,16 +13,19 @@ export function StudioHeader({ onOpenBrowser, onOpenCommand }: Props) {
 
   return (
     <header className="sticky top-0 z-40 px-3 sm:px-6 pt-3">
-      <div className="glass rounded-[var(--radius-lg)] flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5">
+      <div
+        className="glass-strong rounded-[var(--radius-lg)] flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5"
+        style={{ background: 'color-mix(in oklch, var(--color-base) 82%, transparent)' }}
+      >
         <div className="flex items-center gap-2 min-w-0">
-          <div className="relative">
+          <div className="relative shrink-0">
             <Aperture className="size-6 text-[var(--color-primary)]" />
             <Sparkles className="size-3 text-[var(--color-accent)] absolute -top-1 -right-1" />
           </div>
           <div className="leading-tight min-w-0">
-            <div className="text-sm font-semibold tracking-tight truncate">CameraPrompt Pro</div>
+            <div className="text-[14px] font-semibold tracking-tight truncate">CameraPrompt Pro</div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-foreground/50 hidden sm:block">
-              Procedural Studio · Modular Camera Prompts
+              Procedural Studio
             </div>
           </div>
         </div>

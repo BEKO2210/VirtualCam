@@ -43,14 +43,23 @@ export function PickCamera({ onPicked, onBack }: Props) {
               )}
             >
               <div className="flex items-stretch gap-3">
-                <div className="shrink-0 w-[110px] h-[70px] rounded-md overflow-hidden bg-black/30 grid place-items-center">
-                  <CameraGlyph camera={m} format={brand.format} className="w-full h-full p-1" />
+                <div className="shrink-0 w-[120px] h-[78px] rounded-md overflow-hidden bg-black/30 border border-white/[0.04] grid place-items-center relative">
+                  <CameraGlyph camera={m} format={brand.format} className="w-full h-full p-1.5" />
+                  {m.tier === 'flagship' && (
+                    <div
+                      className="absolute top-1 right-1 size-1.5 rounded-full"
+                      style={{
+                        background: 'var(--color-primary)',
+                        boxShadow: '0 0 8px var(--color-primary)',
+                      }}
+                    />
+                  )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-semibold tracking-tight leading-tight line-clamp-1">
+                <div className="min-w-0 flex-1 py-0.5">
+                  <div className="text-[13px] font-semibold tracking-tight leading-snug line-clamp-2">
                     {m.name}
                   </div>
-                  <div className="text-[10px] text-foreground/55 font-mono mt-0.5 line-clamp-1">
+                  <div className="text-[10.5px] text-foreground/55 font-mono mt-1 line-clamp-1">
                     {m.sensor}
                   </div>
                   <div className="mt-1.5 flex items-center gap-1 flex-wrap">

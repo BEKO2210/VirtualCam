@@ -50,32 +50,38 @@ export function PromptStream({ onOpenSettings }: Props) {
 
   return (
     <div className="glass-strong rounded-[var(--radius-lg)] overflow-hidden">
-      {/* Header strip */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--color-border)]">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="size-2 rounded-full bg-[var(--color-success)] pulse-glow" />
-          <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-foreground/50">
-            Live Prompt
+      {/* Header — two rows on mobile, one row from sm: up */}
+      <div className="px-4 pt-3 pb-2 border-b border-[var(--color-border)] space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="size-2 rounded-full bg-[var(--color-success)] pulse-glow" />
+            <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-foreground/50">
+              Live Prompt
+            </div>
           </div>
-          {genre && (
-            <Badge variant="primary" className="ml-1">
-              {genre.name}
-            </Badge>
-          )}
-          {compat?.status === 'adapted' && (
-            <Badge variant="warn" className="ml-0.5">
-              Adapter
-            </Badge>
-          )}
+          {genre && <Badge variant="primary">{genre.name}</Badge>}
+          {compat?.status === 'adapted' && <Badge variant="warn">Adapter</Badge>}
         </div>
-        <div className="ml-auto flex items-center gap-1.5">
-          <Button variant="ghost" size="icon-sm" onClick={onOpenSettings} aria-label="Einstellungen" title="Einstellungen (⌘.)">
+        <div className="flex items-center justify-end gap-1.5 sm:ml-auto">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onOpenSettings}
+            aria-label="Einstellungen"
+            title="Einstellungen"
+          >
             <Sliders className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon-sm" onClick={onDownload} disabled={!text} aria-label="Download">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onDownload}
+            disabled={!text}
+            aria-label="Download"
+          >
             <Download className="size-4" />
           </Button>
-          <Button variant="default" size="sm" onClick={onCopy} disabled={!text} className="gap-2">
+          <Button variant="default" size="sm" onClick={onCopy} disabled={!text} className="gap-1.5 px-3">
             <AnimatePresence mode="wait" initial={false}>
               {copied ? (
                 <motion.span
