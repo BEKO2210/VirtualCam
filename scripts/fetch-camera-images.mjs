@@ -169,36 +169,33 @@ function processBackground(srcPath, destPngPath) {
   }
   if (!bin) return { processed: false, ext: null };
 
+  // Strategy: replace pixels within 14% of pure white with transparency,
+  // then crop the canvas to the non-transparent bounding box.
+  //
+  // We tried the more sophisticated connected-flood-fill approach
+  // (-draw 'alpha X,Y floodfill') first but it failed silently on the
+  // ubuntu-latest IM6 build — likely a policy.xml restriction on the
+  // -draw operator. The blunt `-transparent white` version is more
+  // permissive and still produces clean cutouts because Wikimedia
+  // studio shots almost never have pure-white elements inside the
+  // camera body.
+  const args = [
+    srcPath,
+    '-alpha', 'set',
+    '-fuzz', '14%',
+    '-transparent', 'white',
+    '-trim',
+    '+repage',
+    destPngPath,
+  ];
+
   try {
-    // Strategy:
-    // 1. -fuzz 14% -fill none -draw "alpha 1,1 floodfill" — flood-fill
-    //    transparent from the corners. More accurate than "-transparent
-    //    white" because it only kills the *connected* outer region.
-    // 2. -trim — crop to the non-transparent bounding box.
-    // 3. +repage — reset the canvas size after trim.
-    // We run two flood-fills (top-left and top-right) so it survives
-    // images with off-center subjects.
-    const args = [
-      srcPath,
-      '-bordercolor', 'none',
-      '-fuzz', '14%',
-      '-fill', 'none',
-      '-draw', 'alpha 0,0 floodfill',
-      '-draw', 'alpha 1,1 floodfill',
-      '-draw', 'alpha 99%,1% floodfill',
-      '-draw', 'alpha 1%,99% floodfill',
-      '-draw', 'alpha 99%,99% floodfill',
-      '-trim',
-      '+repage',
-      destPngPath,
-    ];
-    if (bin === 'magick') {
-      execFileSync('magick', args, { stdio: 'pipe' });
-    } else {
-      execFileSync('convert', args, { stdio: 'pipe' });
-    }
+    execFileSync(bin, args, { stdio: ['ignore', 'ignore', 'pipe'] });
     return { processed: true, ext: 'png' };
   } catch (e) {
+    const stderr = e?.stderr?.toString?.() ?? '';
+    console.log(`  ! ImageMagick (${bin}) failed: ${e?.message?.split('\n')[0] ?? ''}`);
+    if (stderr) console.log(`    ${stderr.split('\n').slice(0, 3).join(' | ')}`);
     return { processed: false, ext: null, error: e?.message };
   }
 }
