@@ -14,8 +14,27 @@ export default function App() {
   const setRaw = useStudio((s) => s.setRaw);
   const setCameraImages = useStudio((s) => s.setCameraImages);
   const setError = useStudio((s) => s.setError);
+  const randomize = useStudio((s) => s.randomize);
   const loading = useStudio((s) => s.loading);
   const error = useStudio((s) => s.error);
+  const raw = useStudio((s) => s.raw);
+
+  // Handle PWA shortcut: ?action=random launches a random setup once
+  // data has loaded. The URL is then cleaned so reload doesn't re-fire.
+  useEffect(() => {
+    if (!raw) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'random') {
+      randomize();
+      params.delete('action');
+      const q = params.toString();
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + (q ? `?${q}` : '') + window.location.hash,
+      );
+    }
+  }, [raw, randomize]);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [browserOpen, setBrowserOpen] = useState(false);
