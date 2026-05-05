@@ -22,6 +22,8 @@ export interface CameraModel {
   tier?: 'flagship' | 'pro' | 'enthusiast' | 'cine';
   /** Wikipedia article title used by the build-time image fetcher */
   wiki?: string;
+  /** Direct Wikimedia Commons File: title — overrides Wikipedia pageimage lookup */
+  wikiFile?: string;
 }
 
 export interface CameraImageCredit {
