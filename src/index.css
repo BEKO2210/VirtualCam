@@ -51,6 +51,11 @@
   }
 
   body {
+    /* Hard fallbacks for browsers without oklch / color-mix support
+     * (iOS < 16.2 or Chrome < 111). The next declaration "wins" only
+     * when the modern values are valid, otherwise this stays. */
+    background: #0a0a0c;
+    color: #f4f4f5;
     background:
       radial-gradient(1200px 600px at 8% -10%, oklch(0.30 0.04 60 / 0.18), transparent 60%),
       radial-gradient(900px 500px at 100% 110%, oklch(0.30 0.05 30 / 0.14), transparent 60%),
@@ -58,6 +63,33 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Hex fallbacks for the entire surface palette when oklch() is unsupported */
+  @supports not (color: oklch(0% 0 0)) {
+    :root {
+      --color-base: #0a0a0c;
+      --color-surface: #161618;
+      --color-surface-2: #1f1f23;
+      --color-border: rgba(255, 255, 255, 0.16);
+      --color-border-strong: rgba(255, 255, 255, 0.28);
+      --color-muted: #8a8a93;
+      --color-foreground: #f4f4f5;
+      --color-foreground-dim: #c7c7d1;
+      --color-primary: #f5a623;
+      --color-primary-foreground: #18120a;
+      --color-accent: #e85d04;
+      --color-warn: #f6c34a;
+      --color-danger: #ef4444;
+      --color-success: #22c55e;
+      --color-mount-e: #f5a623;
+      --color-mount-rf: #ef4444;
+      --color-mount-z: #f6c34a;
+      --color-mount-x: #22c55e;
+      --color-mount-l: #6b7280;
+      --color-mount-pl: #d4d4d8;
+      --color-mount-mft: #a855f7;
+    }
   }
 
   ::selection {
