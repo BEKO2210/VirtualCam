@@ -1,0 +1,416 @@
+{
+  "portrait": {
+    "key": "portrait",
+    "name": "Portrait",
+    "description": "Editorial portrait with creamy bokeh and skin-true colors.",
+    "hue": 18,
+    "template": "Editorial portrait captured on a {camera} ({format} sensor) paired with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. Razor-thin depth of field with {depth_of_field} subject separation; {bokeh_shape} bokeh balls in the background. Color profile {color_profile}, {lighting_style} lighting with {highlight_temp} highlights and {shadow_temp} shadows. Skin tones rendered with a {color_tone} cast, contrast curve {contrast_curve}, saturation {saturation}, {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/1.4",
+      "iso": "200",
+      "shutter_speed": "1/250s",
+      "depth_of_field": "razor-thin",
+      "color_profile": "natural skin",
+      "lighting_style": "soft window light",
+      "highlight_temp": "warm",
+      "shadow_temp": "neutral",
+      "color_tone": "natural",
+      "contrast_curve": "soft S-curve",
+      "saturation": "natural",
+      "grain_setting": "fine film grain",
+      "bokeh_shape": "round",
+      "negative_instructions": "No plastic skin, no oversharpening, no HDR look."
+    },
+    "recommended_lenses": ["85mm f/1.4", "135mm f/1.8", "50mm f/1.2"]
+  },
+  "landscape": {
+    "key": "landscape",
+    "name": "Landscape",
+    "description": "Wide vista with deep depth of field and natural color science.",
+    "hue": 150,
+    "template": "Sweeping landscape captured on a {camera} ({format}) with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. Hyperfocal {depth_of_field}, {color_profile} profile, {lighting_style} with {highlight_temp} highlights and {shadow_temp} shadows. Sky treatment: {sky_treatment}. Filter: {filter_style}. Contrast {contrast_curve}, saturation {saturation}, {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/11",
+      "iso": "100",
+      "shutter_speed": "1/60s",
+      "depth_of_field": "deep, edge-to-edge sharpness",
+      "color_profile": "Adobe Landscape",
+      "lighting_style": "golden hour",
+      "highlight_temp": "warm",
+      "shadow_temp": "cool",
+      "sky_treatment": "graduated ND, deep cyan sky",
+      "filter_style": "polarizer",
+      "contrast_curve": "natural",
+      "saturation": "+10",
+      "grain_setting": "negligible",
+      "negative_instructions": "Avoid HDR halos and oversaturation."
+    },
+    "recommended_lenses": ["16-35mm f/2.8", "24-70mm f/2.8", "14mm f/1.8"]
+  },
+  "street": {
+    "key": "street",
+    "name": "Street",
+    "description": "Candid documentary moments, gritty textures, fast reflexes.",
+    "hue": 45,
+    "template": "Candid street frame on a {camera} with the {lens}. {aperture} at {shutter_speed}, ISO {iso}. {color_profile} look, {lighting_style}, {highlight_temp} highlights, {shadow_temp} shadows. {color_tone} grade, contrast {contrast_curve}, saturation {saturation}, {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/5.6",
+      "iso": "1600",
+      "shutter_speed": "1/500s",
+      "color_profile": "Tri-X 400 emulation",
+      "lighting_style": "ambient mixed",
+      "highlight_temp": "neutral",
+      "shadow_temp": "cool",
+      "color_tone": "muted",
+      "contrast_curve": "punchy",
+      "saturation": "low",
+      "grain_setting": "pronounced silver-halide grain",
+      "focus_mode": "zone focus",
+      "negative_instructions": "No staged poses, no studio lighting."
+    },
+    "recommended_lenses": ["35mm f/1.4", "28mm f/2", "50mm f/1.2"]
+  },
+  "macro": {
+    "key": "macro",
+    "name": "Macro",
+    "description": "1:1 detail with focus stacking and surgical lighting.",
+    "hue": 120,
+    "template": "Macro detail on a {camera} with the {lens} at {magnification} magnification. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {depth_of_field}, {lighting_setup}. Profile {color_profile}, contrast {contrast_curve}, saturation {saturation}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/8",
+      "iso": "200",
+      "shutter_speed": "1/200s",
+      "magnification": "1:1",
+      "depth_of_field": "razor-thin macro plane",
+      "lighting_setup": "twin macro flash with diffusers",
+      "color_profile": "Adobe Standard",
+      "contrast_curve": "natural",
+      "saturation": "natural",
+      "focus_mode": "focus stacking, manual rail",
+      "negative_instructions": "No motion blur, no chromatic aberration on edges."
+    },
+    "recommended_lenses": ["100mm Macro", "90mm Macro", "MC 105mm"]
+  },
+  "wildlife": {
+    "key": "wildlife",
+    "name": "Wildlife",
+    "description": "High-shutter telephoto with eye-AF locked in.",
+    "hue": 70,
+    "template": "Wildlife capture on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {depth_of_field}, {color_profile}, {lighting_style}, {color_tone}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}, animal eye-AF. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/4",
+      "iso": "1600",
+      "shutter_speed": "1/2500s",
+      "depth_of_field": "subject separation, soft background",
+      "color_profile": "Adobe Standard",
+      "lighting_style": "natural sun, side-lit",
+      "color_tone": "warm earth tones",
+      "focus_mode": "continuous AF, animal eye detection",
+      "negative_instructions": "No motion blur on subject, no JPEG artifacts."
+    },
+    "recommended_lenses": ["600mm f/4", "400mm f/2.8", "150-600mm"]
+  },
+  "architecture": {
+    "key": "architecture",
+    "name": "Architecture",
+    "description": "Tilt-shift discipline, perfect verticals, and material clarity.",
+    "hue": 220,
+    "template": "Architectural study on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {perspective_control}, {interior_exterior}. Profile {color_profile}, {lighting_style}, contrast {contrast_curve}, saturation {saturation}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/8",
+      "iso": "100",
+      "shutter_speed": "1/125s",
+      "perspective_control": "tilt-shift, perfectly vertical lines",
+      "interior_exterior": "exterior daylight",
+      "color_profile": "Neutral",
+      "lighting_style": "diffuse overcast",
+      "contrast_curve": "linear",
+      "saturation": "low",
+      "negative_instructions": "No converging verticals, no lens distortion."
+    },
+    "recommended_lenses": ["TS-E 17mm", "16-35mm f/2.8", "24mm Tilt-Shift"]
+  },
+  "astrophotography": {
+    "key": "astrophotography",
+    "name": "Astrophotography",
+    "description": "Wide aperture, tracked exposure, milky-way clarity.",
+    "hue": 270,
+    "template": "Astro frame on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed} ({npf} rule). {tracker}. {milky_way_color}. Profile {color_profile}, contrast {contrast_curve}. {resolution} {bit_depth}, {aspect_ratio}, manual focus to infinity. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/1.8",
+      "iso": "6400",
+      "shutter_speed": "20s",
+      "npf": "NPF rule respected",
+      "tracker": "Star Adventurer tracking",
+      "milky_way_color": "natural galactic core, warm dust lanes",
+      "color_profile": "AstroLandscape",
+      "contrast_curve": "stretched",
+      "negative_instructions": "No star trails, no light pollution gradients."
+    },
+    "recommended_lenses": ["14mm f/1.8", "20mm f/1.8", "24mm f/1.4"]
+  },
+  "sports_action": {
+    "key": "sports_action",
+    "name": "Sports & Action",
+    "description": "Tracked motion at extreme shutter, frozen kinetic energy.",
+    "hue": 5,
+    "template": "Action capture on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {stabilization}. {color_profile}, {lighting_style}. Contrast {contrast_curve}, saturation {saturation}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/2.8",
+      "iso": "3200",
+      "shutter_speed": "1/4000s",
+      "stabilization": "monopod stabilized, IBIS on",
+      "color_profile": "Sport Vivid",
+      "lighting_style": "stadium lights, mixed Kelvin",
+      "contrast_curve": "punchy",
+      "saturation": "+15",
+      "focus_mode": "continuous tracking AF, subject lock",
+      "negative_instructions": "No motion blur on the primary subject."
+    },
+    "recommended_lenses": ["70-200mm f/2.8", "300mm f/2.8", "400mm f/2.8"]
+  },
+  "product": {
+    "key": "product",
+    "name": "Product",
+    "description": "Studio control, surgical light shaping, hero shot.",
+    "hue": 200,
+    "template": "Hero product shot on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {bg_type} background, {lighting_setup}. Profile {color_profile}, {color_correction}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/11",
+      "iso": "100",
+      "shutter_speed": "1/200s",
+      "bg_type": "seamless gradient",
+      "lighting_setup": "key + fill + rim, softbox + grid",
+      "color_profile": "ProPhoto RGB",
+      "color_correction": "X-Rite ColorChecker calibrated",
+      "focus_mode": "focus stack, hyperfocal",
+      "negative_instructions": "No reflections of the camera, no dust."
+    },
+    "recommended_lenses": ["100mm Macro", "70-200mm f/2.8", "GF 110mm f/2"]
+  },
+  "wedding": {
+    "key": "wedding",
+    "name": "Wedding",
+    "description": "Documentary romance, mixed lighting, fast lens.",
+    "hue": 340,
+    "template": "Wedding moment on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {lighting_style}, {color_profile}. {color_tone}, contrast {contrast_curve}, {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/1.8",
+      "iso": "1600",
+      "shutter_speed": "1/200s",
+      "lighting_style": "available light, off-camera fill",
+      "color_profile": "Pastel Film",
+      "color_tone": "soft creams and warm whites",
+      "contrast_curve": "soft",
+      "grain_setting": "fine 35mm-style grain",
+      "focus_mode": "continuous eye AF",
+      "negative_instructions": "No oversaturation, no clipped whites on the dress."
+    },
+    "recommended_lenses": ["35mm f/1.4", "85mm f/1.4", "24-70mm f/2.8"]
+  },
+  "food": {
+    "key": "food",
+    "name": "Food",
+    "description": "Top-down editorial, controlled diffusion, appetite-true colors.",
+    "hue": 30,
+    "template": "Editorial food frame on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {lighting_setup}. Profile {color_profile}, contrast {contrast_curve}, saturation {saturation}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/4",
+      "iso": "200",
+      "shutter_speed": "1/125s",
+      "lighting_setup": "single large diffuser overhead, foam-board fill",
+      "color_profile": "Editorial Food",
+      "contrast_curve": "natural",
+      "saturation": "+5 on warm channels",
+      "focus_mode": "tilted plane via tilt-shift",
+      "negative_instructions": "No artificial steam, no sticky highlights."
+    },
+    "recommended_lenses": ["50mm f/1.4", "100mm Macro", "GF 110mm f/2"]
+  },
+  "fashion_editorial": {
+    "key": "fashion_editorial",
+    "name": "Fashion Editorial",
+    "description": "Magazine-grade poses, motion-frozen flash, sculpted look.",
+    "hue": 310,
+    "template": "Fashion editorial on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {lighting_setup}. Profile {color_profile}, contrast {contrast_curve}, {color_tone}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/4",
+      "iso": "100",
+      "shutter_speed": "1/200s",
+      "lighting_setup": "Profoto B10 with beauty dish, gridded rim",
+      "color_profile": "Vogue-grade contrast",
+      "contrast_curve": "high",
+      "color_tone": "desaturated mid-tones, deep shadows",
+      "focus_mode": "single-point AF, tethered",
+      "negative_instructions": "No skin texture loss, no halo around hair."
+    },
+    "recommended_lenses": ["85mm f/1.2", "70-200mm f/2.8", "GF 110mm f/2"]
+  },
+  "documentary": {
+    "key": "documentary",
+    "name": "Documentary",
+    "description": "Truthful reporting, available light, journalistic restraint.",
+    "hue": 35,
+    "template": "Documentary frame on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {color_profile}, {lighting_style}, {color_tone}. {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/2.8",
+      "iso": "1600",
+      "shutter_speed": "1/250s",
+      "color_profile": "Reportage",
+      "lighting_style": "available light only",
+      "color_tone": "neutral, true-to-scene",
+      "grain_setting": "ISO grain preserved",
+      "focus_mode": "single-point AF",
+      "negative_instructions": "No staging, no heavy color grading."
+    },
+    "recommended_lenses": ["35mm f/1.4", "50mm f/1.4", "28mm f/2"]
+  },
+  "black_white": {
+    "key": "black_white",
+    "name": "Black & White",
+    "description": "Mono profile, tonal separation, timeless print look.",
+    "hue": 0,
+    "template": "Monochrome image on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {monochrome_profile}, {filter_simulation}. Highlights: {highlight_handling}. Shadows: {shadow_handling}. Contrast {contrast_curve}, {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/4",
+      "iso": "400",
+      "shutter_speed": "1/250s",
+      "monochrome_profile": "Acros emulation",
+      "filter_simulation": "yellow filter for tonal separation",
+      "highlight_handling": "rolled-off, never clipped",
+      "shadow_handling": "deep but readable",
+      "contrast_curve": "high local",
+      "grain_setting": "Tri-X-like grain",
+      "negative_instructions": "No tinted color cast, pure neutral B&W."
+    },
+    "recommended_lenses": ["35mm f/1.4", "50mm f/1.2", "Noctilux 50mm"]
+  },
+  "underwater": {
+    "key": "underwater",
+    "name": "Underwater",
+    "description": "Dome-port wide, color-corrected blue, strobes balanced.",
+    "hue": 195,
+    "template": "Underwater frame on a {camera} (housed) with the {lens} behind a dome port. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {lighting_setup}, {color_correction}. Profile {color_profile}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/8",
+      "iso": "400",
+      "shutter_speed": "1/200s",
+      "lighting_setup": "dual strobes, 8-inch dome port",
+      "color_correction": "magenta filter for blue water",
+      "color_profile": "Sea-corrected",
+      "focus_mode": "single-point AF on subject eye",
+      "negative_instructions": "No backscatter particles, no green cast."
+    },
+    "recommended_lenses": ["8-15mm Fisheye", "16-35mm f/2.8", "100mm Macro"]
+  },
+  "drone_aerial": {
+    "key": "drone_aerial",
+    "name": "Drone / Aerial",
+    "description": "Top-down geometric study, high-altitude clarity.",
+    "hue": 180,
+    "template": "Aerial frame on a {camera} (drone-mounted) with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {perspective_control}, {color_profile}, {color_tone}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/5.6",
+      "iso": "100",
+      "shutter_speed": "1/500s",
+      "perspective_control": "true top-down nadir",
+      "color_profile": "D-Log to Rec.709",
+      "color_tone": "saturated greens and blues",
+      "focus_mode": "infinity",
+      "negative_instructions": "No motion blur, no rolling-shutter skew."
+    },
+    "recommended_lenses": ["24mm f/1.4", "16-35mm f/2.8", "DJI Hasselblad 28mm"]
+  },
+  "automotive": {
+    "key": "automotive",
+    "name": "Automotive",
+    "description": "Rolling shot, dynamic light streaks, paint-true colors.",
+    "hue": 12,
+    "template": "Automotive frame on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {lighting_style}, {color_profile}, {color_tone}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/5.6",
+      "iso": "200",
+      "shutter_speed": "1/40s",
+      "lighting_style": "rolling shot at dusk, motion light streaks",
+      "color_profile": "Cinematic",
+      "color_tone": "deep teal-and-orange",
+      "focus_mode": "continuous tracking",
+      "negative_instructions": "No frozen wheels — motion in the rim is required."
+    },
+    "recommended_lenses": ["70-200mm f/2.8", "24-70mm f/2.8", "85mm f/1.4"]
+  },
+  "concert_event": {
+    "key": "concert_event",
+    "name": "Concert / Event",
+    "description": "Mixed-Kelvin stage, fast aperture, ISO bravery.",
+    "hue": 290,
+    "template": "Concert frame on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {color_profile}, {lighting_style}, {color_tone}. {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/2.8",
+      "iso": "6400",
+      "shutter_speed": "1/250s",
+      "color_profile": "Concert High-ISO",
+      "lighting_style": "stage LEDs, hard rim spots",
+      "color_tone": "magenta-and-cyan stage wash",
+      "grain_setting": "ISO grain preserved",
+      "focus_mode": "continuous tracking",
+      "negative_instructions": "No motion blur on the artist, no clipped magentas."
+    },
+    "recommended_lenses": ["70-200mm f/2.8", "24-70mm f/2.8", "85mm f/1.4"]
+  },
+  "real_estate": {
+    "key": "real_estate",
+    "name": "Real Estate",
+    "description": "Bracketed interior, vertical-correct, daylight ambient.",
+    "hue": 50,
+    "template": "Real-estate interior on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {perspective_control}, {lighting_setup}, {color_profile}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/8",
+      "iso": "200",
+      "shutter_speed": "1/40s (tripod)",
+      "perspective_control": "verticals corrected",
+      "lighting_setup": "ambient + flash bracketing for windows",
+      "color_profile": "Architectural Daylight",
+      "focus_mode": "hyperfocal",
+      "negative_instructions": "No HDR halos, no clipped windows."
+    },
+    "recommended_lenses": ["14-24mm f/2.8", "16-35mm f/2.8", "TS-E 17mm"]
+  },
+  "night_city": {
+    "key": "night_city",
+    "name": "Night Cityscape",
+    "description": "Long exposure, neon highlights, deep ambient blacks.",
+    "hue": 250,
+    "template": "Night cityscape on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {color_profile}, {color_tone}, {lighting_style}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/8",
+      "iso": "200",
+      "shutter_speed": "8s (tripod)",
+      "color_profile": "Cinematic Neon",
+      "color_tone": "teal shadows, magenta + cyan highlights",
+      "lighting_style": "neon practicals, sodium street lamps",
+      "focus_mode": "manual to infinity",
+      "negative_instructions": "No camera shake, no over-stretched shadows."
+    },
+    "recommended_lenses": ["24-70mm f/2.8", "35mm f/1.4", "16-35mm f/2.8"]
+  },
+  "newborn_baby": {
+    "key": "newborn_baby",
+    "name": "Newborn / Baby",
+    "description": "Soft window light, gentle skin, wrap-around safety.",
+    "hue": 25,
+    "template": "Newborn portrait on a {camera} with the {lens}. Aperture {aperture}, ISO {iso}, shutter {shutter_speed}. {lighting_style}, {color_profile}, {color_tone}, {grain_setting}. {resolution} {bit_depth}, {aspect_ratio}, {focus_mode}. {negative_instructions}",
+    "defaults": {
+      "aperture": "f/2.8",
+      "iso": "400",
+      "shutter_speed": "1/200s",
+      "lighting_style": "huge north-facing window, no flash",
+      "color_profile": "Pastel Newborn",
+      "color_tone": "warm cream skin tones",
+      "grain_setting": "minimal grain",
+      "focus_mode": "single-point AF on the eye",
+      "negative_instructions": "No harsh shadows, no oversaturation."
+    },
+    "recommended_lenses": ["35mm f/1.4", "50mm f/1.4", "85mm f/1.4"]
+  }
+}
