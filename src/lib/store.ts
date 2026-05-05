@@ -20,9 +20,11 @@ import {
   type AnnotatedLens,
 } from './engine';
 
-const STORAGE_KEY = 'cpp:setup:v1';
+const STORAGE_KEY = 'cpp:setup:v2';
+const SCHEMA_VERSION = 2;
 
 interface PersistedSetup {
+  v: number;
   brandKey: string | null;
   cameraId: string | null;
   lensId: string | null;
@@ -43,6 +45,7 @@ interface PersistedSetup {
 }
 
 const emptyPersist: PersistedSetup = {
+  v: SCHEMA_VERSION,
   brandKey: null,
   cameraId: null,
   lensId: null,
@@ -56,9 +59,18 @@ const emptyPersist: PersistedSetup = {
 function loadPersist(): PersistedSetup {
   if (typeof window === 'undefined') return emptyPersist;
   try {
+    // Wipe legacy keys from older deploys.
+    const legacy = localStorage.getItem('cpp:setup:v1');
+    if (legacy) localStorage.removeItem('cpp:setup:v1');
+
     const s = localStorage.getItem(STORAGE_KEY);
     if (!s) return emptyPersist;
-    return { ...emptyPersist, ...JSON.parse(s) };
+    const parsed = JSON.parse(s);
+    if (parsed?.v !== SCHEMA_VERSION) {
+      localStorage.removeItem(STORAGE_KEY);
+      return emptyPersist;
+    }
+    return { ...emptyPersist, ...parsed };
   } catch {
     return emptyPersist;
   }
@@ -67,7 +79,7 @@ function loadPersist(): PersistedSetup {
 function savePersist(p: PersistedSetup) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...p, v: SCHEMA_VERSION }));
   } catch {
     /* ignore */
   }
@@ -272,6 +284,7 @@ export const useStudio = create<StudioState>()(
 
 function persistFromState(s: StudioState) {
   savePersist({
+    v: SCHEMA_VERSION,
     brandKey: s.brandKey,
     cameraId: s.cameraId,
     lensId: s.lensId,
