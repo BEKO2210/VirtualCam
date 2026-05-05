@@ -20,6 +20,21 @@ export interface CameraModel {
   year?: number;
   /** "flagship" | "pro" | "enthusiast" | "cine" */
   tier?: 'flagship' | 'pro' | 'enthusiast' | 'cine';
+  /** Wikipedia article title used by the build-time image fetcher */
+  wiki?: string;
+}
+
+export interface CameraImageCredit {
+  file: string;
+  filename: string;
+  artist: string;
+  license: string;
+  sourceUrl: string;
+}
+
+export interface CameraImagesDoc {
+  generated_at: string;
+  credits: Record<string, CameraImageCredit>;
 }
 
 export interface CameraBrand {

@@ -4,6 +4,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 import type {
   CameraBrand,
+  CameraImagesDoc,
   CameraModel,
   GenreTemplate,
   Lens,
@@ -102,6 +103,7 @@ function savePersist(p: PersistedSetup) {
 
 export interface StudioState extends PersistedSetup {
   raw: RawData | null;
+  cameraImages: CameraImagesDoc | null;
   loading: boolean;
   error: string | null;
 
@@ -111,6 +113,7 @@ export interface StudioState extends PersistedSetup {
 
   /* setters */
   setRaw: (r: RawData) => void;
+  setCameraImages: (doc: CameraImagesDoc | null) => void;
   setError: (e: string | null) => void;
 
   setBrand: (key: string | null) => void;
@@ -147,6 +150,7 @@ export const useStudio = create<StudioState>()(
   subscribeWithSelector((set, get) => ({
     ...loadPersist(),
     raw: null,
+    cameraImages: null,
     loading: true,
     error: null,
     promptText: '',
@@ -157,6 +161,7 @@ export const useStudio = create<StudioState>()(
       // recompute on data load (in case persisted setup is restored)
       set((s) => recompute(s));
     },
+    setCameraImages: (doc) => set({ cameraImages: doc }),
     setError: (error) => set({ error, loading: false }),
 
     setBrand: (key) => {
@@ -316,6 +321,16 @@ function persistFromState(s: StudioState) {
  * ────────────────────────────────────────────────────────────── */
 
 export const useRaw = () => useStudio((s) => s.raw);
+export const useCameraImages = () => useStudio((s) => s.cameraImages);
+
+/** Resolve the absolute URL for a camera's product image (or null) */
+export function useCameraImageUrl(cameraId: string | null | undefined): string | null {
+  const doc = useStudio((s) => s.cameraImages);
+  if (!cameraId || !doc) return null;
+  const credit = doc.credits[cameraId];
+  if (!credit) return null;
+  return `${import.meta.env.BASE_URL}images/cameras/${credit.file}`;
+}
 
 export const useSelection = () =>
   useStudio(

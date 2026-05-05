@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera as CameraIcon, AlertTriangle, ShieldCheck, Plug } from 'lucide-react';
 import type { CameraModel, Lens, MountCompat, SensorFormat } from '@/types';
 import { mountColorVar } from '@/lib/engine';
+import { useCameraImageUrl } from '@/lib/store';
 import { bodyGeometry, parseAperture, parseFocalRange } from '@/lib/rig-geometry';
 
 interface CameraRigProps {
@@ -26,6 +28,9 @@ const AXIS_Y = 168; // optical axis Y position (slightly below center for shadow
 export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraRigProps) {
   const fmt = brand?.format ?? 'Full-Frame';
   const body = bodyGeometry(camera, fmt);
+  const photoUrl = useCameraImageUrl(camera?.id);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const usePhoto = !!(camera && photoUrl && !photoFailed);
 
   const compatStatus = compat?.status ?? 'native';
   const isAdapted = compatStatus === 'adapted';
@@ -62,6 +67,30 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
               'radial-gradient(50% 40% at 25% 20%, color-mix(in oklch, oklch(0.7 0.06 240) 6%, transparent), transparent 70%)',
           }}
         />
+
+        {/* Real product photo when available (Wikimedia CC-licensed via CI fetch) */}
+        {usePhoto && (
+          <motion.div
+            key={`photo-${camera?.id}`}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
+            className="absolute inset-0 grid place-items-center"
+          >
+            <img
+              src={photoUrl!}
+              alt={camera!.name}
+              loading="eager"
+              decoding="async"
+              onError={() => setPhotoFailed(true)}
+              className="max-h-[88%] max-w-[88%] object-contain"
+              style={{
+                filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                mixBlendMode: 'normal',
+              }}
+            />
+          </motion.div>
+        )}
 
         <svg
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
@@ -122,8 +151,8 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
             </filter>
           </defs>
 
-          {/* ── Body shadow on the floor */}
-          {camera && (
+          {/* ── Body shadow on the floor (procedural mode only) */}
+          {camera && !usePhoto && (
             <ellipse
               cx={bodyX + bodyW / 2 - 10}
               cy={bodyY + bodyH + 14}
@@ -134,42 +163,46 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
             />
           )}
 
-          {/* ── Body */}
-          <motion.g
-            initial={false}
-            animate={{ opacity: camera ? 1 : 0.25 }}
-            transition={{ duration: 0.35 }}
-          >
-            <BodySVG
-              x={bodyX}
-              y={bodyY}
-              w={bodyW}
-              h={bodyH}
-              gripW={Math.round(body.gripW * scale * 1.1)}
-              humpH={humpH}
-              type={body.silhouette}
-              brand={brand?.brand}
-              cameraName={camera?.name}
-            />
-          </motion.g>
+          {/* ── Body — procedural (only when no real photo available) */}
+          {!usePhoto && (
+            <motion.g
+              initial={false}
+              animate={{ opacity: camera ? 1 : 0.25 }}
+              transition={{ duration: 0.35 }}
+            >
+              <BodySVG
+                x={bodyX}
+                y={bodyY}
+                w={bodyW}
+                h={bodyH}
+                gripW={Math.round(body.gripW * scale * 1.1)}
+                humpH={humpH}
+                type={body.silhouette}
+                brand={brand?.brand}
+                cameraName={camera?.name}
+              />
+            </motion.g>
+          )}
 
-          {/* ── Lens */}
-          <AnimatePresence>
-            {lens && lensMetrics && (
-              <motion.g
-                key={lens.id}
-                initial={{ x: -100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -60, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 240, damping: 26 }}
-              >
-                <LensSVG metrics={lensMetrics} mountX={bodyX} centerY={AXIS_Y} />
-              </motion.g>
-            )}
-          </AnimatePresence>
+          {/* ── Lens — procedural (skipped when photo mode; lens info still in spec strip) */}
+          {!usePhoto && (
+            <AnimatePresence>
+              {lens && lensMetrics && (
+                <motion.g
+                  key={lens.id}
+                  initial={{ x: -100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -60, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 240, damping: 26 }}
+                >
+                  <LensSVG metrics={lensMetrics} mountX={bodyX} centerY={AXIS_Y} />
+                </motion.g>
+              )}
+            </AnimatePresence>
+          )}
 
-          {/* ── Mount-rim glow (color-coded; pulses on adapter/incompat) */}
-          {camera && (
+          {/* ── Mount-rim glow (color-coded; pulses on adapter/incompat). Only in procedural mode. */}
+          {camera && !usePhoto && (
             <motion.circle
               cx={bodyX}
               cy={AXIS_Y}
