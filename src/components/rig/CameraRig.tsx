@@ -3,7 +3,6 @@ import { Camera as CameraIcon, AlertTriangle, ShieldCheck, Plug } from 'lucide-r
 import type { CameraModel, Lens, MountCompat, SensorFormat } from '@/types';
 import { mountColorVar } from '@/lib/engine';
 import { bodyGeometry, lensGeometry, parseFocalRange } from '@/lib/rig-geometry';
-import { Badge } from '@/components/ui/badge';
 
 interface CameraRigProps {
   brand: { brand: string; format: SensorFormat; mount: string } | null;
@@ -39,7 +38,8 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
   const lensFrontX = lensRearX - ls.length;
 
   return (
-    <div className="relative w-full">
+    <div className="space-y-2">
+      {/* Stage: pure SVG with minimal overlay */}
       <div className="relative aspect-[600/280] w-full overflow-hidden rounded-[var(--radius-lg)] glass-strong grid-paper">
         {/* Subtle ambient light */}
         <div
@@ -159,17 +159,17 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
             />
           )}
 
-          {/* Sensor diagonal indicator (data tag) */}
+          {/* Format ribbon (small, inside SVG corner) */}
           {camera && (
-            <g transform={`translate(${bodyX + body.w - 96}, ${bodyY + body.h - 20})`}>
-              <rect width="92" height="18" rx="9" fill="oklch(1 0 0 / 0.06)" stroke="oklch(1 0 0 / 0.08)" />
+            <g transform={`translate(${VIEW_W - 84}, 12)`}>
+              <rect width="72" height="18" rx="9" fill="oklch(0 0 0 / 0.5)" stroke="oklch(1 0 0 / 0.10)" />
               <text
-                x="46"
+                x="36"
                 y="12"
                 textAnchor="middle"
                 fontSize="9"
                 fontFamily="var(--font-mono)"
-                fill="oklch(1 0 0 / 0.7)"
+                fill="oklch(1 0 0 / 0.78)"
                 letterSpacing="0.04em"
               >
                 {fmt.toUpperCase()}
@@ -177,51 +177,6 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
             </g>
           )}
         </svg>
-
-        {/* ─── Compat overlay ─── */}
-        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-          {brand && (
-            <Badge variant="outline" className="bg-black/30 backdrop-blur">
-              <CameraIcon className="size-3" />
-              {brand.brand}
-            </Badge>
-          )}
-          {camera && (
-            <Badge variant="default" className="bg-black/30 backdrop-blur normal-case tracking-normal text-xs">
-              {camera.name}
-            </Badge>
-          )}
-        </div>
-
-        {/* Mount-compat badge bottom-left */}
-        <div className="absolute left-3 bottom-3 flex flex-wrap gap-2 max-w-[80%]">
-          {lens && compat && (
-            <Badge
-              variant={
-                compat.status === 'native' ? 'success' : compat.status === 'adapted' ? 'warn' : 'danger'
-              }
-              className="backdrop-blur"
-            >
-              {compat.status === 'native' ? (
-                <ShieldCheck className="size-3" />
-              ) : compat.status === 'adapted' ? (
-                <Plug className="size-3" />
-              ) : (
-                <AlertTriangle className="size-3" />
-              )}
-              {compat.status === 'native'
-                ? 'Native Mount'
-                : compat.status === 'adapted'
-                  ? `Adapter: ${compat.adapter ?? 'required'}`
-                  : 'Mount mismatch'}
-            </Badge>
-          )}
-          {lens && (
-            <Badge variant="outline" className="bg-black/30 backdrop-blur normal-case">
-              {lens.name}
-            </Badge>
-          )}
-        </div>
 
         {!camera && !lens && (
           <div className="absolute inset-0 grid place-items-center">
@@ -231,29 +186,78 @@ export function CameraRig({ brand, camera, lens, lensMountKey, compat }: CameraR
             </div>
           </div>
         )}
-
-        {/* Spec strip */}
-        {camera && (
-          <div className="absolute right-3 top-3 max-w-[55%]">
-            <div className="rounded-md bg-black/30 backdrop-blur border border-white/5 px-3 py-2 text-[11px] font-mono text-foreground/70 leading-relaxed">
-              <div>{camera.sensor}</div>
-              <div className="opacity-70">
-                ISO {camera.iso_range[0]}–{camera.iso_range[1].toLocaleString()}
-              </div>
-              {lens && (
-                <div className="opacity-70">
-                  {lens.focal_length} · {lens.max_aperture}
-                  {(() => {
-                    const fr = parseFocalRange(lens.focal_length);
-                    const fov = Math.round(2 * Math.atan(36 / (2 * fr[0])) * (180 / Math.PI));
-                    return ` · ${fov}° FOV`;
-                  })()}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Mount-compat banner — most important, full width, only when adapter/incompat */}
+      {lens && compat && compat.status !== 'native' && (
+        <div
+          className={
+            'flex items-center gap-2 px-3 py-2 rounded-[var(--radius-sm)] border ' +
+            (compat.status === 'adapted'
+              ? 'bg-[color-mix(in_oklch,var(--color-warn)_14%,transparent)] border-[color-mix(in_oklch,var(--color-warn)_40%,transparent)] text-[color-mix(in_oklch,var(--color-warn)_92%,white)]'
+              : 'bg-[color-mix(in_oklch,var(--color-danger)_14%,transparent)] border-[color-mix(in_oklch,var(--color-danger)_40%,transparent)] text-[color-mix(in_oklch,var(--color-danger)_92%,white)]')
+          }
+        >
+          {compat.status === 'adapted' ? (
+            <Plug className="size-3.5 shrink-0" />
+          ) : (
+            <AlertTriangle className="size-3.5 shrink-0" />
+          )}
+          <div className="text-[11px] font-medium uppercase tracking-[0.12em] shrink-0">
+            {compat.status === 'adapted' ? 'Adapter' : 'Mismatch'}
+          </div>
+          <div className="text-[12px] font-mono opacity-90 truncate">
+            {compat.adapter ?? compat.note ?? 'required'}
+          </div>
+        </div>
+      )}
+
+      {/* Spec strip — clean horizontal info row */}
+      {camera && (
+        <div className="rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-white/[0.02] divide-y divide-[var(--color-border)] sm:divide-y-0 sm:divide-x sm:flex">
+          <SpecCell label="Body" value={camera.name} hint={brand?.brand} />
+          <SpecCell
+            label="Sensor"
+            value={camera.sensor.split(' ').slice(0, 2).join(' ')}
+            hint={`ISO ${camera.iso_range[0]}–${camera.iso_range[1].toLocaleString()}`}
+          />
+          {lens && (
+            <SpecCell
+              label="Lens"
+              value={`${lens.focal_length} · ${lens.max_aperture}`}
+              hint={(() => {
+                const fr = parseFocalRange(lens.focal_length);
+                const fov = Math.round(2 * Math.atan(36 / (2 * fr[0])) * (180 / Math.PI));
+                return `${fov}° FOV`;
+              })()}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Lens name strip */}
+      {lens && (
+        <div className="text-[12px] text-foreground/65 font-mono px-1 truncate flex items-center gap-2">
+          {compat?.status === 'native' && (
+            <ShieldCheck className="size-3 text-[var(--color-success)] shrink-0" />
+          )}
+          <span className="truncate">{lens.name}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SpecCell({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div className="px-3 py-2 flex-1 min-w-0">
+      <div className="text-[9px] font-mono uppercase tracking-[0.18em] text-foreground/40 mb-0.5">
+        {label}
+      </div>
+      <div className="text-[12.5px] font-semibold tracking-tight truncate">{value}</div>
+      {hint && (
+        <div className="text-[10px] text-foreground/55 font-mono mt-0.5 truncate">{hint}</div>
+      )}
     </div>
   );
 }
