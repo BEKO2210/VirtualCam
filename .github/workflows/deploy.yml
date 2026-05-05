@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build PWA icons + Open Graph card
+        run: npm run build:assets
+
       - name: Fetch camera images from Wikimedia (best-effort)
         run: node scripts/fetch-camera-images.mjs
         continue-on-error: true

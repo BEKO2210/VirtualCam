@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:assets": "node scripts/build-pwa-assets.mjs",
+    "build:prompts": "node scripts/build-prompts.mjs",
     "preview": "vite preview --port 4173",
     "typecheck": "tsc -b --noEmit"
   },
