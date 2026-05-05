@@ -112,22 +112,36 @@ export const mountColorVar: Record<string, string> = {
 /**
  * Returns mount compatibility verdict for a (brand, lens-mount) pair.
  * Never hides – returns adapter info for Pro display.
+ *
+ * Result is memoized on the (brand, mount) tuple so consumers calling this
+ * inside a useShallow selector get a stable reference and don't trigger
+ * infinite re-renders.
  */
+const compatCache = new Map<string, MountCompat>();
 export function checkMountCompat(brandKey: string, lensMountKey: string): MountCompat {
+  const k = `${brandKey}:${lensMountKey}`;
+  const hit = compatCache.get(k);
+  if (hit) return hit;
   const native = nativeMounts[brandKey] ?? [];
-  if (native[0] === lensMountKey) return { status: 'native' };
-  if (native.includes(lensMountKey)) {
-    return { status: 'native', note: 'First-party mount' };
+  let res: MountCompat;
+  if (native[0] === lensMountKey) {
+    res = { status: 'native' };
+  } else if (native.includes(lensMountKey)) {
+    res = { status: 'native', note: 'First-party mount' };
+  } else {
+    const adapter = adapterMatrix[brandKey]?.[lensMountKey];
+    if (adapter && !/no native adapter/i.test(adapter) && !/mismatch/i.test(adapter)) {
+      res = { status: 'adapted', adapter };
+    } else {
+      res = {
+        status: 'incompatible',
+        adapter,
+        note: adapter ?? 'Mechanically incompatible — flange distance / data pin mismatch',
+      };
+    }
   }
-  const adapter = adapterMatrix[brandKey]?.[lensMountKey];
-  if (adapter && !/no native adapter/i.test(adapter) && !/mismatch/i.test(adapter)) {
-    return { status: 'adapted', adapter };
-  }
-  return {
-    status: 'incompatible',
-    adapter,
-    note: adapter ?? 'Mechanically incompatible — flange distance / data pin mismatch',
-  };
+  compatCache.set(k, res);
+  return res;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -142,7 +156,17 @@ export interface AnnotatedLens extends Lens {
   compat: MountCompat;
 }
 
+/**
+ * Memoized on (brandKey, raw) — same RawData reference yields same array
+ * reference, so React.useMemo / shallow consumers stay stable.
+ */
+const annotationCache = new WeakMap<RawData, Map<string, AnnotatedLens[]>>();
 export function annotateLensesForBrand(brandKey: string, raw: RawData): AnnotatedLens[] {
+  let perRaw = annotationCache.get(raw);
+  if (!perRaw) annotationCache.set(raw, (perRaw = new Map()));
+  const cached = perRaw.get(brandKey);
+  if (cached) return cached;
+
   const out: AnnotatedLens[] = [];
   for (const [mountKey, mount] of Object.entries(raw.lenses)) {
     const compat = checkMountCompat(brandKey, mountKey);
@@ -164,6 +188,7 @@ export function annotateLensesForBrand(brandKey: string, raw: RawData): Annotate
     }
     return categoryOrder(a.category) - categoryOrder(b.category);
   });
+  perRaw.set(brandKey, out);
   return out;
 }
 
