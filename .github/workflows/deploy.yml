@@ -29,6 +29,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Fetch camera images from Wikimedia (best-effort)
+        run: node scripts/fetch-camera-images.mjs
+        continue-on-error: true
+
       - name: Build (typecheck + bundle)
         env:
           # Repo is served from https://<owner>.github.io/<repo>/
