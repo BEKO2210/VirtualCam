@@ -57,7 +57,7 @@ export default function App() {
         onOpenCommand={() => setPaletteOpen(true)}
       />
 
-      <main className="px-3 sm:px-6 py-4 space-y-4 max-w-4xl mx-auto">
+      <main className="px-3 sm:px-5 pt-3 pb-6 space-y-3 max-w-3xl mx-auto">
         <HeroStage />
         <PromptStream onOpenSettings={() => setSettingsOpen(true)} />
         <Footer />

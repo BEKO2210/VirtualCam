@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useRaw, useStudio } from '@/lib/store';
-import { BrandGlyph } from '@/components/icons/brands';
+import { BrandLogo, brandAccent } from '@/components/icons/BrandLogo';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
@@ -8,20 +8,6 @@ interface Props {
   active: string | null;
   onPicked: (brandKey: string) => void;
 }
-
-const ACCENT_COLORS: Record<string, string> = {
-  sony: '#f5a623',
-  canon: '#ef4444',
-  nikon: '#f6c34a',
-  fujifilm: '#22c55e',
-  panasonic: '#3b82f6',
-  leica: '#ef4444',
-  hasselblad: '#d4d4d8',
-  phase_one: '#06b6d4',
-  blackmagic: '#f97316',
-  red: '#ef4444',
-  arri: '#d4d4d8',
-};
 
 export function PickBrand({ active, onPicked }: Props) {
   const raw = useRaw();
@@ -35,7 +21,7 @@ export function PickBrand({ active, onPicked }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
         {brands.map((b, i) => {
           const isActive = active === b.key;
-          const accent = ACCENT_COLORS[b.key] ?? '#f5a623';
+          const accent = brandAccent(b.key);
           return (
             <motion.button
               key={b.key}
@@ -48,7 +34,7 @@ export function PickBrand({ active, onPicked }: Props) {
                 onPicked(b.key);
               }}
               className={cn(
-                'relative rounded-[var(--radius)] p-3 sm:p-4 text-left ring-focus min-h-[120px] flex flex-col justify-between transition-colors',
+                'relative rounded-[var(--radius)] p-3.5 text-left ring-focus min-h-[120px] flex flex-col gap-3 transition-colors',
                 'border bg-white/[0.02] hover:bg-white/[0.04] active:bg-white/[0.06]',
                 isActive
                   ? 'border-[color-mix(in_oklch,var(--color-primary)_60%,transparent)] shadow-[0_0_0_1px_color-mix(in_oklch,var(--color-primary)_30%,transparent),0_8px_24px_-12px_var(--color-primary)]'
@@ -56,22 +42,22 @@ export function PickBrand({ active, onPicked }: Props) {
               )}
             >
               <div
-                className="absolute inset-0 rounded-[var(--radius)] opacity-15 pointer-events-none"
+                className="absolute inset-0 rounded-[var(--radius)] opacity-12 pointer-events-none"
                 style={{
                   background: `radial-gradient(120% 80% at 100% 0%, ${accent}, transparent 60%)`,
                 }}
               />
-              <div className="relative">
-                <BrandGlyph brandKey={b.key} size={44} />
-              </div>
-              <div className="relative">
-                <div className="text-[14px] font-semibold tracking-tight">{b.brand}</div>
-                <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+              <BrandLogo brandKey={b.key} size={48} className="relative shrink-0" />
+              <div className="relative mt-auto">
+                <div className="text-[14px] font-semibold tracking-tight leading-tight">
+                  {b.brand}
+                </div>
+                <div className="mt-1 flex items-center gap-1 flex-wrap">
                   <Badge variant="outline" className="text-[9px] py-0 h-4 normal-case">
                     {b.format}
                   </Badge>
                   <Badge variant="outline" className="text-[9px] py-0 h-4 normal-case">
-                    {b.models.length}× Body
+                    {b.models.length}
                   </Badge>
                 </div>
               </div>
@@ -86,12 +72,12 @@ export function PickBrand({ active, onPicked }: Props) {
 function Header() {
   return (
     <div className="px-1">
-      <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-foreground/45 mb-0.5">
-        Schritt 1 von 4
+      <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-foreground/45 mb-1">
+        Schritt 1 · Marke
       </div>
-      <div className="text-[15px] font-semibold tracking-tight">Welche Marke?</div>
-      <div className="text-xs text-foreground/55 mt-0.5">
-        11 Hersteller, 36 Bodies. Das bestimmt das Mount-System.
+      <div className="text-[16px] font-semibold tracking-tight">Welche Marke?</div>
+      <div className="text-[12px] text-foreground/55 mt-1 leading-relaxed">
+        11 Hersteller. Bestimmt das Mount-System.
       </div>
     </div>
   );

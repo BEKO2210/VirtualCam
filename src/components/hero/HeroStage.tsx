@@ -9,13 +9,13 @@ import { PickGenre } from './PickGenre';
 import { RigView } from './RigView';
 
 /**
- * The hero is a finite-state machine over five stages. The stage that
- * shows on first paint is auto-derived from the persisted selection so
- * a user who reloads mid-flow lands exactly where they left off.
+ * The hero is a finite-state machine over five stages. Per @beko's
+ * request, every fresh visit starts at step 1 ("brand") instead of
+ * resuming from the persisted setup.
  */
 export function HeroStage() {
   const sel = useSelection();
-  const [stage, setStage] = useState<StageKey>(() => deriveStage(sel));
+  const [stage, setStage] = useState<StageKey>('brand');
 
   // If the selection ever drops back below the current stage's
   // requirements (e.g. user clears brand from the Sheet), retreat.
@@ -37,7 +37,7 @@ export function HeroStage() {
   return (
     <section className="glass-strong rounded-[var(--radius-lg)] p-3 sm:p-4 space-y-3">
       <Breadcrumb stage={stage} steps={steps} onJump={setStage} />
-      <div className="relative min-h-[420px]">
+      <div className="relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={stage}
@@ -45,6 +45,7 @@ export function HeroStage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
+            className={stage === 'rig' ? '' : 'min-h-[280px]'}
           >
             {stage === 'brand' && (
               <PickBrand active={sel.brandKey} onPicked={() => setStage('camera')} />
@@ -66,10 +67,3 @@ export function HeroStage() {
   );
 }
 
-function deriveStage(sel: ReturnType<typeof useSelection>): StageKey {
-  if (sel.brandKey && sel.cameraId && sel.lensId && sel.genreKey) return 'rig';
-  if (sel.brandKey && sel.cameraId && sel.lensId) return 'genre';
-  if (sel.brandKey && sel.cameraId) return 'lens';
-  if (sel.brandKey) return 'camera';
-  return 'brand';
-}

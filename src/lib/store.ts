@@ -57,6 +57,15 @@ const emptyPersist: PersistedSetup = {
   favorites: [],
 };
 
+/**
+ * On every fresh visit we always start at step 1 (no restored brand/
+ * camera/lens/genre/settings). Only durable user actions persist:
+ *   - favorites
+ *   - history of saved setups
+ *
+ * Per @beko's request: "es soll immer bei 1 starten cache soll immer
+ * sauber sein beim besuch der seite".
+ */
 function loadPersist(): PersistedSetup {
   if (typeof window === 'undefined') return emptyPersist;
   try {
@@ -71,7 +80,12 @@ function loadPersist(): PersistedSetup {
       localStorage.removeItem(STORAGE_KEY);
       return emptyPersist;
     }
-    return { ...emptyPersist, ...parsed };
+    return {
+      ...emptyPersist,
+      // keep durable artefacts only
+      favorites: Array.isArray(parsed.favorites) ? parsed.favorites : [],
+      history: Array.isArray(parsed.history) ? parsed.history : [],
+    };
   } catch {
     return emptyPersist;
   }
