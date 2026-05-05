@@ -255,12 +255,18 @@ const FALLBACKS: Record<string, string> = {
   negative_instructions: 'No artificial effects.',
 };
 
+export type PromptMode = 'reconstruction' | 'generation';
+
 export interface GenerateInput {
   brand: CameraBrand | null;
   camera: CameraModel | null;
   lens: Lens | null;
   genre: GenreTemplate | null;
   settings: Settings;
+  /** "reconstruction" emits an image-edit/restore prompt that aggressively
+   * preserves the source image. "generation" emits the current
+   * genre-template style (creative new image). Default reconstruction. */
+  mode?: PromptMode;
 }
 
 /**
@@ -275,8 +281,11 @@ export interface GenerateResult {
 }
 
 export function generatePrompt(input: GenerateInput): GenerateResult {
-  const { brand, camera, lens, genre, settings: s } = input;
+  const { brand, camera, lens, genre, settings: s, mode = 'reconstruction' } = input;
   if (!brand || !camera || !lens || !genre) return { text: '', tokens: [] };
+  if (mode === 'reconstruction') {
+    return buildReconstructionPrompt(input);
+  }
 
   const d = genre.defaults || {};
   const variables: Record<string, string> = {
@@ -421,6 +430,130 @@ export function findLensAcrossMounts(raw: RawData, lensId: string): { mountKey: 
     if (lens) return { mountKey, lens };
   }
   return null;
+}
+
+/* ──────────────────────────────────────────────────────────────
+ * Reconstruction prompt builder
+ *
+ * AI image models default to "create a new image" when given a
+ * descriptive prompt. The reconstruction template aggressively pins
+ * the model to "edit/restore the uploaded image, preserve identity,
+ * preserve background, only enhance" — exactly the behaviour @beko
+ * needs for portrait restoration with a virtual lens upgrade.
+ *
+ * The template is one fixed scaffold that interpolates the picked
+ * camera, lens, and settings. We don't branch on genre because the
+ * scaffold is genre-agnostic — the genre still influences the
+ * default settings (aperture, ISO, lighting style) so each setup
+ * still feels distinct.
+ * ────────────────────────────────────────────────────────────── */
+
+const RECON_FALLBACKS: Record<string, string> = {
+  resolution: '4K',
+  bit_depth: '10-bit',
+  aspect_ratio: '3:2',
+  focus_mode: 'eye AF',
+  depth_of_field: 'shallow',
+  bokeh: 'round, natural, realistic',
+  color_profile: 'natural skin',
+  lighting_style: 'soft neutral daylight',
+  highlight_temp: 'warm',
+  shadow_temp: 'cool',
+  color_tone: 'natural',
+  contrast_curve: 'soft S-curve',
+  saturation: 'natural',
+  grain: 'fine 35mm-style grain',
+};
+
+function buildReconstructionPrompt(input: GenerateInput): GenerateResult {
+  const { brand, camera, lens, genre, settings: s } = input;
+  if (!brand || !camera || !lens || !genre) return { text: '', tokens: [] };
+  const d = genre.defaults || {};
+
+  // Resolve every variable once (with the same precedence the legacy
+  // generator uses: explicit setting → genre default → reconstruction fallback).
+  const v = {
+    camera: camera.name,
+    lens: lens.name,
+    format: brand.format,
+    aperture: s.aperture || d.aperture || lens.max_aperture || 'f/2',
+    iso: s.iso || formatIso(d.iso || '200'),
+    shutter: s.shutterSpeed || d.shutter_speed || '1/250s',
+    resolution: s.resolution || d.resolution || RECON_FALLBACKS.resolution,
+    bit_depth: s.bitDepth || d.bit_depth || RECON_FALLBACKS.bit_depth,
+    aspect_ratio: s.aspectRatio || d.aspect_ratio || RECON_FALLBACKS.aspect_ratio,
+    focus_mode: s.focusMode || d.focus_mode || RECON_FALLBACKS.focus_mode,
+    depth_of_field: s.depthOfField || d.depth_of_field || RECON_FALLBACKS.depth_of_field,
+    bokeh: s.bokehShape || d.bokeh_shape || RECON_FALLBACKS.bokeh,
+    color_profile: s.colorProfile || d.color_profile || RECON_FALLBACKS.color_profile,
+    lighting_style: s.lightingStyle || d.lighting_style || RECON_FALLBACKS.lighting_style,
+    highlight_temp: s.highlightTemp || d.highlight_temp || RECON_FALLBACKS.highlight_temp,
+    shadow_temp: s.shadowTemp || d.shadow_temp || RECON_FALLBACKS.shadow_temp,
+    color_tone: s.colorTone || d.color_tone || RECON_FALLBACKS.color_tone,
+    contrast_curve: s.contrastCurve || d.contrast_curve || RECON_FALLBACKS.contrast_curve,
+    saturation: s.saturation || d.saturation || RECON_FALLBACKS.saturation,
+    grain: s.grainSetting || d.grain_setting || RECON_FALLBACKS.grain,
+    negative: s.negativeInstructions || d.negative_instructions || 'No fake glow, no plastic skin, no over-smoothing.',
+  };
+
+  // Build the prompt as a list of (literal, key?) chunks so we can
+  // record token spans for the live-diff highlight in the UI.
+  const chunks: Array<{ text: string; key?: string }> = [
+    { text: 'STRICT IMAGE RECONSTRUCTION TASK\n\n' },
+    { text: 'Use the uploaded image as a hard reference. The output must be an enhanced reconstruction of the SAME image — not a reinterpretation.\n\n' },
+    { text: 'NON-NEGOTIABLE RULES:\n' },
+    { text: '- Keep the exact same composition, framing, and camera angle\n' },
+    { text: '- Preserve 100% of the background, environment, and object placement\n' },
+    { text: '- Do NOT change pose, proportions, or facial structure\n' },
+    { text: '- Do NOT stylize or reimagine the scene\n' },
+    { text: '- Identity must remain identical (no AI face drift)\n\n' },
+    { text: 'ALLOWED CHANGES ONLY:\n' },
+    { text: '- Subtle skin cleanup (remove minor blemishes, keep real texture)\n' },
+    { text: '- Improve sharpness on subject (natural, no oversharpening)\n' },
+    { text: '- Enhance dynamic range (recover highlights/shadows)\n' },
+    { text: '- Refine color grading (natural skin tones, no HDR look)\n' },
+    { text: '- Slight micro-contrast boost\n' },
+    { text: '- Add very fine film grain\n\n' },
+    { text: 'CAMERA & LOOK (MANDATORY):\n' },
+    { text: '- ' }, { text: v.camera, key: 'camera' }, { text: ' ' },
+    { text: v.format, key: 'format' }, { text: ' look\n' },
+    { text: '- ' }, { text: v.lens, key: 'lens' }, { text: '\n' },
+    { text: '- Aperture ' }, { text: v.aperture, key: 'aperture' },
+    { text: ' → ' }, { text: v.depth_of_field, key: 'depth_of_field' }, { text: ' depth of field\n' },
+    { text: '- Bokeh: ' }, { text: v.bokeh, key: 'bokeh' }, { text: '\n' },
+    { text: '- ISO ' }, { text: v.iso, key: 'iso' }, { text: ', ' },
+    { text: v.shutter, key: 'shutter' }, { text: ' look\n' },
+    { text: '- Lighting: ' }, { text: v.lighting_style, key: 'lighting_style' }, { text: '\n' },
+    { text: '- Focus: ' }, { text: v.focus_mode, key: 'focus_mode' }, { text: '\n\n' },
+    { text: 'COLOR:\n' },
+    { text: '- Profile: ' }, { text: v.color_profile, key: 'color_profile' }, { text: '\n' },
+    { text: '- Tone: ' }, { text: v.color_tone, key: 'color_tone' },
+    { text: ' (' }, { text: v.highlight_temp, key: 'highlight_temp' }, { text: ' highlights, ' },
+    { text: v.shadow_temp, key: 'shadow_temp' }, { text: ' shadows)\n' },
+    { text: '- Contrast: ' }, { text: v.contrast_curve, key: 'contrast_curve' }, { text: '\n' },
+    { text: '- Saturation: ' }, { text: v.saturation, key: 'saturation' }, { text: '\n' },
+    { text: '- Grain: ' }, { text: v.grain, key: 'grain' }, { text: '\n' },
+    { text: '- No oversaturation, no artificial glow, no plastic skin\n\n' },
+    { text: 'OUTPUT:\n' },
+    { text: '- ' }, { text: v.resolution, key: 'resolution' }, { text: ' ' },
+    { text: v.bit_depth, key: 'bit_depth' }, { text: ', aspect ' },
+    { text: v.aspect_ratio, key: 'aspect_ratio' }, { text: '\n' },
+    { text: '- Photorealistic, editorial-quality upgrade\n' },
+    { text: '- Must look like the original photo, just taken with a high-end lens and perfect exposure\n\n' },
+    { text: 'NEGATIVE INSTRUCTIONS:\n' },
+    { text: v.negative, key: 'negative_instructions' },
+  ];
+
+  let text = '';
+  const tokens: GenerateResult['tokens'] = [];
+  for (const c of chunks) {
+    if (!c.text) continue;
+    if (c.key && c.text) {
+      tokens.push({ start: text.length, end: text.length + c.text.length, key: c.key, value: c.text });
+    }
+    text += c.text;
+  }
+  return { text: text.trim(), tokens };
 }
 
 export type { CameraBrand, CameraModel, GenreTemplate, Lens, LensMount, PromptEntry, RawData };

@@ -101,11 +101,15 @@ function savePersist(p: PersistedSetup) {
   }
 }
 
+export type PromptMode = 'reconstruction' | 'generation';
+
 export interface StudioState extends PersistedSetup {
   raw: RawData | null;
   cameraImages: CameraImagesDoc | null;
   loading: boolean;
   error: string | null;
+  /** "reconstruction" preserves identity + composition; "generation" makes a new image. */
+  mode: PromptMode;
 
   /* derived caches */
   promptText: string;
@@ -114,6 +118,7 @@ export interface StudioState extends PersistedSetup {
   /* setters */
   setRaw: (r: RawData) => void;
   setCameraImages: (doc: CameraImagesDoc | null) => void;
+  setMode: (m: PromptMode) => void;
   setError: (e: string | null) => void;
 
   setBrand: (key: string | null) => void;
@@ -142,6 +147,7 @@ const recompute = (state: StudioState): Pick<StudioState, 'promptText' | 'prompt
     lens: lensRef?.lens ?? null,
     genre,
     settings: state.settings,
+    mode: state.mode,
   });
   return { promptText: r.text, promptTokens: r.tokens };
 };
@@ -153,6 +159,7 @@ export const useStudio = create<StudioState>()(
     cameraImages: null,
     loading: true,
     error: null,
+    mode: 'reconstruction' as PromptMode,
     promptText: '',
     promptTokens: [],
 
@@ -162,6 +169,12 @@ export const useStudio = create<StudioState>()(
       set((s) => recompute(s));
     },
     setCameraImages: (doc) => set({ cameraImages: doc }),
+    setMode: (mode) => {
+      set((s) => {
+        const next = { ...s, mode };
+        return { ...next, ...recompute(next) };
+      });
+    },
     setError: (error) => set({ error, loading: false }),
 
     setBrand: (key) => {
